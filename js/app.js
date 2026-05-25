@@ -107,7 +107,7 @@ function renderFormCard(form) {
       <div class="badges">${badges}</div>
       <h3>${escapeHtml(form.title || 'Unbenanntes Formular')}</h3>
       <p>${escapeHtml(form.description || 'Keine Beschreibung vorhanden.')}</p>
-      <a class="open-link" href="${escapeAttribute(form.url || '#')}">Formular öffnen</a>
+      <a class="open-link" href="${escapeAttribute(form.url || '#')}" target="_blank" rel="noopener noreferrer">Formular öffnen</a>
     </article>
   `;
 }
