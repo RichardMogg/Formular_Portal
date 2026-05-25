@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Formular-Portal</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="page-bg" aria-hidden="true"></div>
+
+  <header class="app-header">
+    <h1>Formular-Portal</h1>
+    <p>Zentrale mobile Übersicht für technische Formular-Webapps</p>
+  </header>
+
+  <main>
+    <section class="panel order-placeholder" aria-labelledby="order-title">
+      <h2 id="order-title">Auftrag laden</h2>
+      <p>PDF-Auftrag-Import ist vorbereitet, aber noch nicht umgesetzt. Auftragsdaten werden nicht gespeichert.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="search-title">
+      <h2 id="search-title">Formulare suchen</h2>
+      <div class="controls">
+        <label>
+          Suche
+          <input class="search-input" data-search type="search" placeholder="Titel, Kategorie, Tag oder Status">
+        </label>
+        <label>
+          Kategorie
+          <select class="filter-select" data-category-filter>
+            <option value="all">Alle Kategorien</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section aria-labelledby="forms-title">
+      <div class="panel">
+        <h2 id="forms-title">Verfügbare Formulare</h2>
+        <p data-status>Formulare werden geladen...</p>
+      </div>
+      <div class="form-grid" data-form-grid></div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
