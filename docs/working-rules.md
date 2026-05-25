@@ -609,3 +609,150 @@ RichardMogg/Formular_Portal
 ```
 
 Das Baukasten-Repository ist ausschließlich Referenz.
+
+
+---
+
+## Ergänzung: Mobile-first, Baukasten-Optik und Auftrag-PDF-Import
+
+### Baukasten als visuelle Referenz
+
+Das Repository `RichardMogg/Formular_Baukasten` bleibt ausschließlich Referenz.
+
+Zusätzlich zur Struktur- und Runtime-Referenz darf der Baukasten als visuelle Referenz für das Portal verwendet werden.
+
+Erlaubt ist die Orientierung an:
+
+- Farbwelt
+- Karten- und Panel-Optik
+- Header-Anmutung
+- technischer Formular-Anmutung
+- abgerundeten Bedienelementen
+- mobilem Verhalten
+- klarer Trennung von HTML, CSS und JavaScript
+
+Nicht erlaubt:
+
+- Baukasten-Dateien ändern
+- Baukasten-CSS ungeprüft kopieren
+- Baukasten-JavaScript in das Portal übernehmen
+- Portal-Logik in den Baukasten einbauen
+- Baukasten-Repository für Portal-Änderungen verwenden
+
+Alle aktiven Änderungen erfolgen ausschließlich in `RichardMogg/Formular_Portal`.
+
+### Mobile-first Portal
+
+Das Portal wird primär für mobile Nutzung geplant.
+
+Mobile Bedienbarkeit ist keine spätere Optimierung, sondern eine zentrale Zielvorgabe.
+
+Regeln:
+
+- zuerst Smartphone und Tablet planen
+- große Touch-Ziele verwenden
+- Suche und Filter mobil prominent platzieren
+- Formular-Kacheln mobil klar lesbar halten
+- Status, Version, Kategorie und Tags kompakt als Badges darstellen
+- keine Desktop-Zweispaltenstruktur als Grundvoraussetzung verwenden
+- Desktop darf zusätzlichen Platz nutzen, Mobile bleibt maßgeblich
+- PDF-Auftrag-Upload mobil bedienbar machen
+- erkannte Auftragsdaten mobil prüfbar und korrigierbar machen
+
+### Auftrag-PDF-Import
+
+Der Auftrag-PDF-Import gehört zur Portal-Zielarchitektur.
+
+Grundablauf:
+
+PDF lokal im Browser laden
+→ Text oder Daten extrahieren
+→ erkannte Auftragsdaten anzeigen
+→ Nutzer prüft oder korrigiert Daten
+→ temporären Auftragskontext erzeugen
+→ Formular optional mit Auftragskontext öffnen
+
+In der ersten statischen Ausbaustufe gilt:
+
+- Auftrag-PDFs nur lokal im Browser verarbeiten
+- keine serverseitige Verarbeitung ohne separate Entscheidung
+- keine Übertragung an externe Dienste ohne separate Entscheidung
+- keine dauerhafte Speicherung echter Auftragsdaten
+- keine Auftragsdaten in `forms.json`
+- keine Pflichtabhängigkeit der Formular-Webapps vom Portal
+
+Gescannte PDFs oder Bild-PDFs benötigen OCR.
+
+OCR ist nicht automatisch Bestandteil der ersten Umsetzung und erfordert eine separate technische Entscheidung.
+
+### Temporärer Auftragskontext
+
+Das Portal darf aus einem Auftrag-PDF einen temporären Auftragskontext erzeugen.
+
+Dieser Kontext darf für die aktuelle Nutzung vorbereitet werden, darf aber in der ersten statischen Ausbaustufe nicht dauerhaft im Portal gespeichert werden.
+
+Wenn `sessionStorage`, `localStorage`, IndexedDB oder ein anderer Browser-Speicher verwendet werden soll, muss vorher entschieden werden:
+
+- welche Daten gespeichert werden
+- wie lange sie gespeichert werden
+- wie der Nutzer sie löschen kann
+- ob die Speicherung für die erste Ausbaustufe zulässig ist
+
+`forms.json` darf nur Formular-Metadaten und Fähigkeiten enthalten, keine echten Auftragsinhalte.
+
+Zulässige Metadatenfelder für spätere Vorbefüllung:
+
+{
+  "acceptsOrderContext": false,
+  "prefillProfile": ""
+}
+
+### Optionale Vorbefüllung von Formularen
+
+Exportierte Formular-Webapps müssen eigenständig lauffähig bleiben.
+
+Eine Formular-Webapp darf später optional Portal-Kopfdaten übernehmen.
+
+Nicht zulässig:
+
+- Formular-Webapp startet nur noch über das Portal
+- Portal-Logik wird in einzelne exportierte Formulare eingebaut
+- Auftrag-PDF-Importlogik wird in einzelne exportierte Formulare eingebaut
+- bestehende Formularordner werden ohne ausdrücklichen Auftrag umgebaut
+
+Zulässig als spätere Architektur:
+
+Formular-Webapp läuft alleine.
+Portal verlinkt Formular-Webapp.
+Portal kann optional vorbereitete Kopfdaten bereitstellen.
+Formular-Webapp kann diese Kopfdaten optional übernehmen.
+
+Die Schnittstelle für Vorbefüllung sollte später sauber über den Baukasten beziehungsweise den Runtime-Export vorbereitet werden, nicht manuell pro Formularordner.
+
+### Zusätzliche Prüfpunkte vor Änderungen
+
+Zusätzlich zu den bestehenden Prüfpunkten prüfen:
+
+1. Bleibt die mobile Bedienung vorrangig berücksichtigt?
+2. Wird nur das Portal-Repository geändert?
+3. Bleibt der Baukasten unverändert?
+4. Wird Baukasten-Code nicht ungeprüft übernommen?
+5. Werden Auftragsdaten nicht dauerhaft gespeichert?
+6. Bleibt `forms.json` frei von echten Auftragsinhalten?
+7. Bleiben Formular-Webapps eigenständig lauffähig?
+8. Ist der Auftrag-PDF-Import vom Formular getrennt?
+9. Bleibt die Lösung statisch und GitHub-Pages-tauglich?
+10. Sind externe Bibliotheken bewusst gewählt und dokumentiert?
+
+### Zusätzliche Qualitätskriterien
+
+Das Portal erfüllt diese Ergänzung, wenn:
+
+- die mobile Ansicht zuerst sauber funktioniert
+- die Oberfläche optisch zum Baukasten passt, ohne Baukasten-Code ungeprüft zu kopieren
+- Auftrag-PDF-Import lokal im Browser geplant oder umgesetzt ist
+- erkannte Auftragsdaten vor Verwendung prüfbar sind
+- keine echten Auftragsdaten in `forms.json` landen
+- Formular-Webapps eigenständig bleiben
+- Vorbefüllung nur optional erfolgt
+- das Portal weiterhin statisch und GitHub-Pages-tauglich bleibt
