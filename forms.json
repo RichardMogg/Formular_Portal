@@ -1,13 +1,13 @@
 [
   {
-    "id": "demo-formular",
-    "title": "Demo Formular",
-    "category": "Test",
-    "description": "Platzhalter fuer die erste Portalansicht.",
-    "url": "forms/demo-formular/index.html",
-    "version": "0.1",
+    "id": "srk-dx-kuehler-outdoor",
+    "title": "Inbetriebnahmeprotokoll DX Kühler Outdoor",
+    "category": "Inbetriebnahme",
+    "description": "Browserbasierte Web-App zur Erstellung von Inbetriebnahmeprotokollen fuer DX Kuehler Outdoor.",
+    "url": "forms/SRK/index.html",
+    "version": "1.0",
     "status": "draft",
-    "tags": ["Demo"],
+    "tags": ["SRK", "DX", "Kuehler", "Inbetriebnahme"],
     "favorite": false,
     "acceptsOrderContext": false,
     "prefillProfile": ""
