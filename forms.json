@@ -1,0 +1,15 @@
+[
+  {
+    "id": "demo-formular",
+    "title": "Demo Formular",
+    "category": "Test",
+    "description": "Platzhalter fuer die erste Portalansicht.",
+    "url": "forms/demo-formular/index.html",
+    "version": "0.1",
+    "status": "draft",
+    "tags": ["Demo"],
+    "favorite": false,
+    "acceptsOrderContext": false,
+    "prefillProfile": ""
+  }
+]
