@@ -268,7 +268,7 @@ function prefillModalFromActiveOrder() {
   // Standardmäßig leere Zeilen erzeugen
   addMaterialRow('', '', '');
   addMaterialRow('', '', '');
-  addTimeRow('', '', '', '', '', '', '', '');
+  addTimeRow('', '', '', '', '', '', '', '', '');
   
   if (techSigPad) techSigPad.clear();
   if (custSigPad) custSigPad.clear();
@@ -299,7 +299,7 @@ function clearAllModalFormFields() {
   
   addMaterialRow('', '', '');
   addMaterialRow('', '', '');
-  addTimeRow('', '', '', '', '', '', '', '');
+  addTimeRow('', '', '', '', '', '', '', '', '');
   
   if (techSigPad) techSigPad.clear();
   if (custSigPad) custSigPad.clear();
@@ -333,19 +333,23 @@ export function addMaterialRow(menge = '', bezeichnung = '', material = '') {
   });
   
   elements.materialTableBody.appendChild(tr);
-}
-
-// Dynamisches Hinzufügen von Arbeitszeitzeilen
-export function addTimeRow(tag = '', name = '', arbeitszeit = '', n = '', p50 = '', p100 = '', fahrtzeit = '', km = '') {
+}// Dynamisches Hinzufügen von Arbeitszeitzeilen
+export function addTimeRow(tag = '', name = '', von = '', bis = '', n = '', p50 = '', p100 = '', fahrtzeit = '', km = '') {
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td><input type="text" class="sheet-table-input time-tag" value="${escapeAttribute(tag)}" placeholder="29.05."></td>
     <td><input type="text" class="sheet-table-input time-name" value="${escapeAttribute(name)}" placeholder="Techniker - Tätigkeit"></td>
-    <td><input type="text" class="sheet-table-input time-arbeitszeit" value="${escapeAttribute(arbeitszeit)}" placeholder="08:00 - 16:30"></td>
+    <td>
+      <div class="time-picker-wrapper">
+        <input type="time" class="sheet-table-input time-von" value="${escapeAttribute(von)}">
+        <span>-</span>
+        <input type="time" class="sheet-table-input time-bis" value="${escapeAttribute(bis)}">
+      </div>
+    </td>
     <td><input type="text" class="sheet-table-input time-n" value="${escapeAttribute(n)}" placeholder="8"></td>
     <td><input type="text" class="sheet-table-input time-50" value="${escapeAttribute(p50)}"></td>
     <td><input type="text" class="sheet-table-input time-100" value="${escapeAttribute(p100)}"></td>
-    <td><input type="text" class="sheet-table-input time-fahrtzeit" value="${escapeAttribute(fahrtzeit)}" placeholder="07:30 / 17:00"></td>
+    <td><input type="text" class="sheet-table-input time-fahrtzeit" value="${escapeAttribute(fahrtzeit)}" placeholder="z.B. 1,5"></td>
     <td><input type="text" class="sheet-table-input time-km" value="${escapeAttribute(km)}" placeholder="42"></td>
     <td class="no-print text-center"><button type="button" class="btn-row-del" title="Zeile löschen">✕</button></td>
   `;
@@ -357,6 +361,7 @@ export function addTimeRow(tag = '', name = '', arbeitszeit = '', n = '', p50 = 
   
   tr.querySelectorAll('input').forEach(input => {
     input.addEventListener('input', triggerDraftAutoSave);
+    input.addEventListener('change', triggerDraftAutoSave);
   });
   
   elements.timeTableBody.appendChild(tr);
@@ -378,14 +383,15 @@ export function collectLieferscheinData() {
   elements.timeTableBody.querySelectorAll('tr').forEach(tr => {
     const tag = tr.querySelector('.time-tag').value;
     const name = tr.querySelector('.time-name').value;
-    const arbeitszeit = tr.querySelector('.time-arbeitszeit').value;
+    const von = tr.querySelector('.time-von').value;
+    const bis = tr.querySelector('.time-bis').value;
     const n = tr.querySelector('.time-n').value;
     const p50 = tr.querySelector('.time-50').value;
     const p100 = tr.querySelector('.time-100').value;
     const fahrtzeit = tr.querySelector('.time-fahrtzeit').value;
     const km = tr.querySelector('.time-km').value;
-    if (tag || name || arbeitszeit || n || p50 || p100 || fahrtzeit || km) {
-      times.push({ tag, name, arbeitszeit, n, p50, p100, fahrtzeit, km });
+    if (tag || name || von || bis || n || p50 || p100 || fahrtzeit || km) {
+      times.push({ tag, name, von, bis, n, p50, p100, fahrtzeit, km });
     }
   });
 
@@ -458,9 +464,9 @@ function applyLieferscheinDraft(draft) {
   
   elements.timeTableBody.innerHTML = '';
   if (Array.isArray(draft.times) && draft.times.length > 0) {
-    draft.times.forEach(t => addTimeRow(t.tag, t.name, t.arbeitszeit, t.n, t.p50, t.p100, t.fahrtzeit, t.km));
+    draft.times.forEach(t => addTimeRow(t.tag, t.name, t.von || '', t.bis || '', t.n, t.p50, t.p100, t.fahrtzeit, t.km));
   } else {
-    addTimeRow('', '', '', '', '', '', '', '');
+    addTimeRow('', '', '', '', '', '', '', '', '');
   }
   
   elements.statusAbgeschlossen.checked = !!draft.statusAbgeschlossen;

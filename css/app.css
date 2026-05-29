@@ -804,9 +804,9 @@ main {
   top: 3px;
   width: 4px;
   height: 8px;
-  border: solid #003f75;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  border: solid #16a34a; /* Grüner Haken */
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(0deg); /* 45° nach links gedreht (von 45deg auf 0deg) */
 }
 
 .gear-checkbox:checked ~ .gear-checkbox-custom::after {
@@ -1111,6 +1111,38 @@ main {
   @page {
     size: A4 portrait;
     margin: 12mm 15mm;
+  }
+}
+
+/* Styles für die zwei Zeit-Eingabefelder (von - bis) */
+.time-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.time-picker-wrapper input[type="time"] {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1a1a1a;
+  outline: none;
+  padding: 2px 0;
+  width: 56px;
+  box-sizing: border-box;
+}
+
+.time-picker-wrapper span {
+  color: #64748b;
+  font-weight: 700;
+}
+
+@media print {
+  .time-picker-wrapper input[type="time"] {
+    width: auto !important;
   }
 }
 

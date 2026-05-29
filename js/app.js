@@ -128,6 +128,21 @@ function bindEvents() {
     await handleOrderCompletion();
   });
 
+  // Radio-Button-Verhalten (Entweder-oder) für erfolgreich / folgetermin
+  elements.statusAbgeschlossen.addEventListener('change', () => {
+    if (elements.statusAbgeschlossen.checked) {
+      elements.statusFolgetermin.checked = false;
+      triggerDraftAutoSave();
+    }
+  });
+
+  elements.statusFolgetermin.addEventListener('change', () => {
+    if (elements.statusFolgetermin.checked) {
+      elements.statusAbgeschlossen.checked = false;
+      triggerDraftAutoSave();
+    }
+  });
+
   // Auto-Save Trigger für statische Felder
   const autoSaveFields = [
     elements.modalOrderId, elements.modalClientName, elements.modalClientAddress,
@@ -258,8 +273,26 @@ function getGeolocation() {
 // ========================================================
 async function handleOrderCompletion() {
   const orderId = elements.modalOrderId.value.trim() || 'Unbekannt';
-  
-  // Validierung: Unterschriften vorhanden?
+  // 1. Validierung: Mindestens eine Checkbox der Auftragsgrundlage ausgewählt?
+  const basisSelected = elements.basisReparatur.checked || 
+                        elements.basisStoerung.checked || 
+                        elements.basisWartung.checked || 
+                        elements.basisPruefung.checked || 
+                        elements.basisInbetriebnahme.checked || 
+                        elements.basisInstallation.checked;
+  if (!basisSelected) {
+    alert("Bitte wählen Sie mindestens eine Auftragsgrundlage aus (Reparatur, Störung, Wartung, Prüfung, Inbetriebnahme oder Installation).");
+    return;
+  }
+
+  // 2. Validierung: Genau einer der Abschluss-Status (erfolgreich / folgetermin) ausgewählt?
+  const statusSelected = elements.statusAbgeschlossen.checked || elements.statusFolgetermin.checked;
+  if (!statusSelected) {
+    alert("Bitte wählen Sie den Abschluss-Status aus (erfolgreich abgeschlossen oder Folgetermin notwendig).");
+    return;
+  }
+
+  // 3. Validierung: Unterschriften vorhanden?
   if (custSigPad && custSigPad.isEmpty()) {
     if (!confirm('Es wurde noch keine Kundenunterschrift geleistet. Möchten Sie den Auftrag trotzdem abschließen?')) {
       return;
