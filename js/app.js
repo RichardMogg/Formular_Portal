@@ -1,18 +1,36 @@
-import { state, loadOrderContext, saveOrderContext, clearOrderContext } from './state.js';
-import { elements, renderCategoryFilter, renderForms, renderOrderContext, escapeHtml } from './ui.js';
+import { state, loadOrderContext, saveOrderContext, clearOrderContext, shredCompleteActiveOrder } from './state.js';
+import { 
+  elements, 
+  renderCategoryFilter, 
+  renderForms, 
+  renderOrderContext, 
+  openLieferscheinModal, 
+  closeLieferscheinModal, 
+  addMaterialRow, 
+  addTimeRow,
+  triggerDraftAutoSave,
+  resetPortalToInitialState,
+  techSigPad,
+  custSigPad
+} from './ui.js';
 import { parsePdfOrder } from './pdf-handler.js';
+
+// Mail-Konfigurations-Cache
+let cachedMailAddress = 'adl@gebatech.at'; // Standard Fallback
+let cachedMailBody = 'Auftrag abgeschlossen.\nAnbei der Arbeitsnachweis/Lieferschein im Anhang.';
 
 async function init() {
   bindEvents();
   await loadForms();
+  await loadMailConfiguration();
   
-  // Geladenen Auftrag aus sessionStorage wiederherstellen (falls vorhanden)
+  // Geladenen Auftrag aus sessionStorage/localStorage wiederherstellen
   loadOrderContext();
   renderOrderContext();
 }
 
 function bindEvents() {
-  // Filter- und Suche-Events
+  // Filter- und Suche-Events im Dashboard
   elements.search.addEventListener('input', () => {
     state.query = elements.search.value.trim().toLowerCase();
     renderForms();
@@ -62,6 +80,68 @@ function bindEvents() {
     clearOrderContext();
     renderOrderContext();
   });
+
+  // ========================================================
+  // LIEFERSCHEIN MODAL LOGICS
+  // ========================================================
+  
+  // Modal öffnen
+  elements.btnCreateLieferschein.addEventListener('click', () => {
+    openLieferscheinModal();
+  });
+
+  // Modal schließen (speichert Entwurf automatisch)
+  elements.btnCloseModal.addEventListener('click', () => {
+    closeLieferscheinModal();
+  });
+
+  // Materialzeile hinzufügen
+  elements.btnAddMaterialRow.addEventListener('click', () => {
+    addMaterialRow('', '', '');
+    triggerDraftAutoSave();
+  });
+
+  // Arbeitszeitzeile hinzufügen
+  elements.btnAddTimeRow.addEventListener('click', () => {
+    addTimeRow('', '', '', '', '', '', '', '');
+    triggerDraftAutoSave();
+  });
+
+  // Signaturen löschen
+  elements.btnClearTechSig.addEventListener('click', () => {
+    if (techSigPad) techSigPad.clear();
+    triggerDraftAutoSave();
+  });
+
+  elements.btnClearCustSig.addEventListener('click', () => {
+    if (custSigPad) custSigPad.clear();
+    triggerDraftAutoSave();
+  });
+
+  // Drucken-Button
+  elements.btnPrintLieferschein.addEventListener('click', () => {
+    window.print();
+  });
+
+  // Haupt-Button "Auftrag abschließen" (PDF-Erstellung + Mail + Shredder + Reset)
+  elements.btnCompleteOrder.addEventListener('click', async () => {
+    await handleOrderCompletion();
+  });
+
+  // Auto-Save Trigger für statische Felder
+  const autoSaveFields = [
+    elements.modalOrderId, elements.modalClientName, elements.modalClientAddress,
+    elements.modalCustomerName, elements.modalCustomerAddress, elements.modalContact,
+    elements.modalPhone, elements.modalDate, elements.modalBasisNote1, elements.modalBasisNote2,
+    elements.modalLeistungsbericht, elements.basisReparatur, elements.basisStoerung,
+    elements.basisWartung, elements.basisPruefung, elements.basisInbetriebnahme,
+    elements.basisInstallation, elements.statusAbgeschlossen, elements.statusFolgetermin
+  ];
+  
+  autoSaveFields.forEach(field => {
+    field.addEventListener('input', triggerDraftAutoSave);
+    field.addEventListener('change', triggerDraftAutoSave);
+  });
 }
 
 async function handlePdfUpload(file) {
@@ -89,23 +169,177 @@ async function handlePdfUpload(file) {
 async function loadForms() {
   try {
     const response = await fetch('forms.json', { cache: 'no-store' });
-
     if (!response.ok) {
       throw new Error(`forms.json konnte nicht geladen werden (${response.status}).`);
     }
-
     const forms = await response.json();
-
     if (!Array.isArray(forms)) {
       throw new Error('forms.json muss ein Array enthalten.');
     }
-
     state.forms = forms;
     renderCategoryFilter();
     renderForms();
   } catch (error) {
     elements.grid.innerHTML = `<div class="error-state">${escapeHtml(error.message)}</div>`;
   }
+}
+
+// ========================================================
+// E-MAIL CONFIGURATION LOADER
+// ========================================================
+async function loadMailConfiguration() {
+  try {
+    const response = await fetch('assets/mail.md', { cache: 'no-store' });
+    if (!response.ok) {
+      console.warn('assets/mail.md konnte nicht geladen werden, verwende Standardwerte.');
+      return;
+    }
+    const markdown = await response.text();
+    
+    // E-Mail-Adresse extrahieren
+    const addressMatch = markdown.match(/Address:\s*([^\r\n]+)/i);
+    if (addressMatch) {
+      cachedMailAddress = addressMatch[1].trim();
+    }
+    
+    // E-Mail-Text extrahieren
+    const bodyMatch = markdown.match(/Body:\s*([\s\S]+)/i);
+    if (bodyMatch) {
+      cachedMailBody = bodyMatch[1]
+        .replace(/^[ \t]+/gm, '') // Führende Leerzeichen je Zeile entfernen
+        .trim();
+    }
+    
+    console.log(`[MailConfig] Konfiguration geladen: Empfänger=${cachedMailAddress}`);
+  } catch (e) {
+    console.error('Fehler beim Laden der Mail-Konfiguration:', e);
+  }
+}
+
+// ========================================================
+// ORDER COMPLETION & EMAIL FORWARDING WORKFLOW
+// ========================================================
+async function handleOrderCompletion() {
+  const orderId = elements.modalOrderId.value.trim() || 'Unbekannt';
+  
+  // Validierung: Unterschriften vorhanden?
+  if (custSigPad && custSigPad.isEmpty()) {
+    if (!confirm('Es wurde noch keine Kundenunterschrift geleistet. Möchten Sie den Auftrag trotzdem abschließen?')) {
+      return;
+    }
+  }
+
+  // Visualisierung starten
+  const btn = elements.btnCompleteOrder;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Erstelle Lieferschein PDF...';
+
+  try {
+    // 1. html2pdf.js dynamisch nachladen (um Ladezeiten beim App-Start zu minimieren)
+    await loadHtml2PdfLibrary();
+    
+    // 2. Element für PDF-Export vorbereiten
+    const element = document.getElementById('lieferscheinSheet');
+    const filename = `Arbeitsnachweis-${orderId}.pdf`;
+    
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true,
+        logging: false
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    // Erzeuge das PDF-Dokument als Binär-Blob
+    const pdfBlob = await window.html2pdf().set(opt).from(element).output('blob');
+    
+    // 3. E-Mail Versand per Web Share API oder Fallback
+    const subject = `Arbeitsnachweis/Lieferschein ${orderId}`;
+    const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+    
+    let sharedSuccessfully = false;
+    
+    // Web Share API unterstützt das Teilen von Dateien (hervorragend auf iPads & Mobiltelefonen)
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: subject,
+          text: cachedMailBody
+        });
+        sharedSuccessfully = true;
+        console.log('[MailShare] PDF wurde erfolgreich über die Web Share API geteilt.');
+      } catch (shareError) {
+        // Share vom Benutzer abgebrochen oder fehlgeschlagen
+        console.warn('[MailShare] Teilen abgebrochen oder fehlgeschlagen:', shareError);
+      }
+    }
+    
+    // Fallback: Direkter PDF-Download + mailto: Link
+    if (!sharedSuccessfully) {
+      // PDF-Download im Browser triggern
+      await window.html2pdf().set(opt).from(element).save();
+      
+      // Mailto Link öffnen
+      const mailtoUrl = `mailto:${cachedMailAddress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(cachedMailBody + '\n\n[Bitte hängen Sie das soeben heruntergeladene Lieferschein-PDF an diese Mail an]')}`;
+      window.location.href = mailtoUrl;
+      
+      alert('Der Arbeitsnachweis wurde als PDF heruntergeladen und Ihre E-Mail-App wurde geöffnet.\n\nBitte hängen Sie die heruntergeladene Datei an.');
+    }
+    
+    // 4. SICHERHEITSLÖSCHUNG & RESET (Daten und Unterschriften rückstandsfrei vernichten)
+    shredCompleteActiveOrder();
+    
+    // Portal-UI komplett zurücksetzen
+    resetPortalToInitialState();
+    
+    // Modal schließen
+    elements.lieferscheinModal.classList.add('hidden');
+    document.body.style.overflow = '';
+    
+    alert('Auftrag erfolgreich abgeschlossen! Alle Daten und Unterschriften wurden sicher aus dem lokalen Speicher geschreddert.');
+    
+  } catch (error) {
+    console.error('Fehler beim Auftragsabschluss:', error);
+    alert('Fehler beim Abschließen des Auftrags: ' + error.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+// Lädt html2pdf.js aus dem CDN
+function loadHtml2PdfLibrary() {
+  return new Promise((resolve, reject) => {
+    if (window.html2pdf) {
+      resolve();
+      return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    script.onload = () => {
+      resolve();
+    };
+    script.onerror = () => {
+      reject(new Error('PDF-Bibliothek (html2pdf.js) konnte nicht vom CDN geladen werden. Bitte Internetverbindung prüfen.'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
 init();

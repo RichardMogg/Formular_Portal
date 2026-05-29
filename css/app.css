@@ -385,3 +385,732 @@ main {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ========================================================
+   PREMIUM MODAL & GEBATECH SHEET STYLES
+   ======================================================== */
+
+.btn-create-lieferschein {
+  min-height: 38px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 92, 169, 0.25);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.btn-create-lieferschein:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 92, 169, 0.35);
+}
+
+.order-header-actions {
+  display: flex;
+  align-items: center;
+}
+
+/* Modal Overlay & Container */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: 20px 10px;
+  animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-overlay.hidden {
+  display: none !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-container {
+  width: min(840px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Control Bar */
+.modal-control-bar {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 1010;
+}
+
+.modal-draft-badge {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-draft-badge::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #2563eb;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+.modal-control-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-control {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-control:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.btn-print {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.btn-print:hover {
+  background: #dcfce7;
+}
+
+.btn-complete {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.1);
+}
+
+.btn-complete:hover {
+  background: #fef3c7;
+}
+
+.btn-close {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+/* ========================================================
+   GEBATECH SHEET STYLE (BRIEFPAPIER REPLICA)
+   ======================================================== */
+.gebatech-sheet {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 30px;
+  color: #1a1a1a;
+  font-family: Arial, Helvetica, sans-serif;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Zahnrad Hintergrund-Wasserzeichen */
+.sheet-background-gear {
+  position: absolute;
+  top: 15px;
+  right: -130px;
+  width: 320px;
+  height: 320px;
+  background: url('../assets/frontpage-gear.svg') no-repeat center;
+  background-size: contain;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+/* Header */
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #005ca9;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.sheet-logo-img {
+  width: 250px;
+  height: auto;
+  display: block;
+}
+
+.header-address {
+  font-size: 10px;
+  color: #475569;
+  text-align: right;
+  line-height: 1.4;
+}
+
+/* Titel und ID Box */
+.sheet-title-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+
+.sheet-main-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #003f75;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.sheet-order-id-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid #64748b;
+  padding: 4px 10px;
+  background: #f8fafc;
+  border-radius: 4px;
+}
+
+.sheet-order-id-box label {
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.sheet-order-id-input {
+  width: 90px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #003f75;
+  background: transparent !important;
+  text-align: center;
+}
+
+/* Kopfdaten-Matrix */
+.sheet-grid-wrapper {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sheet-form-field {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.sheet-form-field label {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 1px;
+}
+
+.sheet-input-flat {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 2px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  outline: none;
+}
+
+.sheet-input-flat:focus {
+  background: rgba(0, 92, 169, 0.02);
+}
+
+.sheet-row-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 600px) {
+  .sheet-row-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.sheet-row-fields.double {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 8px;
+}
+
+/* Sektions-Titel */
+.sheet-section-title {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: #005ca9;
+  padding: 4px 8px;
+  margin: 18px 0 10px 0;
+  letter-spacing: 0.5px;
+  border-radius: 2px;
+}
+
+.sheet-section-title.flex-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 4px;
+}
+
+.btn-action-small {
+  min-height: 22px;
+  border: none;
+  background: #ffd200;
+  color: #003f75;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  padding: 0 8px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-action-small:hover {
+  background: #e6bd00;
+}
+
+/* Zahnrad Checkboxen */
+.sheet-checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 4px;
+}
+
+@media (min-width: 600px) {
+  .sheet-checkbox-group {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.sheet-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1a1a;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Ausgeblendeter echter Checkbox-Input */
+.gear-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Custom Zahnrad Indicator */
+.gear-checkbox-custom {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background: url('../assets/frontpage-gear.svg') no-repeat center;
+  background-size: contain;
+  filter: grayscale(1) brightness(0.85); /* Standard grau */
+  transition: all 0.2s ease;
+}
+
+.gear-checkbox:checked ~ .gear-checkbox-custom {
+  filter: none; /* Aktiviert gelb/braune Markenfarbe */
+  transform: rotate(45deg);
+}
+
+.gear-checkbox-custom::after {
+  content: '';
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 3px;
+  width: 4px;
+  height: 8px;
+  border: solid #003f75;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.gear-checkbox:checked ~ .gear-checkbox-custom::after {
+  display: block;
+}
+
+.sheet-basis-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.sheet-input-line {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #cbd5e1;
+  padding: 4px 0;
+  font-size: 12px;
+  font-weight: 700;
+  background: transparent;
+  outline: none;
+}
+
+/* Leistungsbericht */
+.sheet-report-wrapper {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.sheet-textarea-ruled {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 24px;
+  font-family: inherit;
+  color: #1a1a1a;
+  resize: vertical;
+  outline: none;
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+  background-image: linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 95%, #e2e8f0 95%, #e2e8f0 100%);
+  background-size: 100% 24px;
+}
+
+/* Tabellen allgemein */
+.sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  font-size: 11px;
+}
+
+.sheet-table th,
+.sheet-table td {
+  border: 1px solid #cbd5e1;
+  padding: 4px 6px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.sheet-table th {
+  background: #f1f5f9;
+  font-weight: 900;
+  color: #334155;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.sheet-table tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.sheet-table-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 2px 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1a1a1a;
+  outline: none;
+}
+
+.btn-row-del {
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  font-weight: 900;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.btn-row-del:hover {
+  transform: scale(1.1);
+}
+
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Footer-Bereich: Abschluss & Unterschriften */
+.sheet-footer-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-top: 20px;
+  border-top: 1.5px solid #cbd5e1;
+  padding-top: 14px;
+}
+
+@media (min-width: 720px) {
+  .sheet-footer-row {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+
+.sheet-footer-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.footer-note-text {
+  font-size: 8px;
+  color: #475569;
+  line-height: 1.5;
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 10px;
+}
+
+.footer-signatures-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.signature-box-wrapper {
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 8px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.signature-title {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #475569;
+  border-bottom: 1px dashed #cbd5e1;
+  padding-bottom: 3px;
+}
+
+.signature-canvas-container {
+  width: 100%;
+  height: 90px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.signature-canvas-element {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.btn-clear-sig {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.btn-clear-sig:hover {
+  color: var(--danger);
+}
+
+/* ========================================================
+   EXACT A4 PRINT SPECIFIC RULES
+   ======================================================== */
+@media print {
+  /* Härtefall-Resets */
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 12px;
+  }
+  
+  /* Hauptinhalte des Dashboards verstecken */
+  .no-print,
+  .app-header,
+  main,
+  .page-bg,
+  .modal-control-bar,
+  .btn-action-small,
+  th.no-print,
+  td.no-print,
+  .btn-clear-sig {
+    display: none !important;
+  }
+
+  /* Overlay deaktivieren, um reines Blatt zu zeigen */
+  .modal-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    z-index: auto !important;
+    overflow-y: visible !important;
+    display: block !important;
+  }
+
+  .modal-container {
+    width: 100% !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .gebatech-sheet {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .sheet-background-gear {
+    opacity: 0.08 !important; /* Zahnrad bleibt schwach sichtbar beim Drucken */
+  }
+
+  /* Schreiblinien-Druck optimieren */
+  .sheet-textarea-ruled {
+    border: none !important;
+    padding: 4px 0 !important;
+    background-image: linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 95%, #cbd5e1 95%, #cbd5e1 100%) !important;
+    background-size: 100% 24px !important;
+    font-size: 12px !important;
+  }
+
+  /* Keine interaktiven Ränder bei Input-Feldern */
+  .sheet-input-flat,
+  .sheet-input-line,
+  .sheet-table-input {
+    border-bottom: none !important;
+  }
+
+  .sheet-form-field {
+    border: 1px solid #94a3b8 !important;
+    background: #ffffff !important;
+  }
+  
+  .sheet-order-id-box {
+    border: 1.5px solid #000000 !important;
+    background: #ffffff !important;
+  }
+
+  /* Tabellenränder verstärken */
+  .sheet-table th,
+  .sheet-table td {
+    border: 1px solid #64748b !important;
+  }
+
+  .sheet-table th {
+    background: #e2e8f0 !important;
+    color: #000000 !important;
+  }
+
+  /* Signaturfelder abdunkeln für guten Druckkontrast */
+  .signature-canvas-container {
+    border: 1px solid #64748b !important;
+  }
+
+  /* Echte A4 Formatierung erzwingen */
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+}
+

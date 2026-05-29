@@ -9,12 +9,13 @@
 <body>
   <div class="page-bg" aria-hidden="true"></div>
 
-  <header class="app-header">
+  <!-- Header des Haupt-Dashboards (Wird beim Drucken versteckt) -->
+  <header class="app-header no-print">
     <h1>Formular-Portal</h1>
     <p>Zentrale mobile Übersicht für technische Formular-Webapps</p>
   </header>
 
-  <main>
+  <main class="no-print">
     <section class="panel order-section" aria-labelledby="order-title">
       <h2 id="order-title">Auftragsdaten laden</h2>
       
@@ -34,7 +35,10 @@
             <span class="order-badge">Geladen</span>
             <h3>Auftrag: <span data-order-id></span></h3>
           </div>
-          <button class="btn-discard" data-discard-order>Entfernen</button>
+          <div class="order-header-actions">
+            <button class="btn-create-lieferschein" id="btnCreateLieferschein">Arbeitsnachweis / Lieferschein erzeugen</button>
+            <button class="btn-discard" data-discard-order>Entfernen</button>
+          </div>
         </div>
         <div class="order-grid">
           <div class="order-field">
@@ -90,6 +94,218 @@
       <div class="form-grid" data-form-grid></div>
     </section>
   </main>
+
+  <!-- ========================================================
+       MODAL OVERLAY: GEBATECH KUNDENDIENSTAUFTRAG
+       ======================================================== -->
+  <div class="modal-overlay hidden" id="lieferscheinModal" role="dialog" aria-modal="true" aria-labelledby="modal-main-title">
+    <div class="modal-container">
+      
+      <!-- Kontrollbar oben (wird beim Drucken versteckt) -->
+      <div class="modal-control-bar no-print">
+        <span class="modal-draft-badge" id="modalSaveStatus">Änderungen werden lokal gesichert</span>
+        <div class="modal-control-actions">
+          <button type="button" class="btn-control btn-print" id="btnPrintLieferschein">🖨️ Drucken / PDF</button>
+          <button type="button" class="btn-control btn-complete" id="btnCompleteOrder">🚀 Auftrag abschließen</button>
+          <button type="button" class="btn-control btn-close" id="btnCloseModal">✕ Schließen</button>
+        </div>
+      </div>
+
+      <!-- Das eigentliche, digitalisierte Gebatech-Briefblatt -->
+      <div class="gebatech-sheet" id="lieferscheinSheet">
+        <!-- SVG Zahnrad als Hintergrund-Wasserzeichen -->
+        <div class="sheet-background-gear" aria-hidden="true"></div>
+
+        <!-- Briefkopf (Header) -->
+        <header class="sheet-header">
+          <div class="header-logo">
+            <img src="assets/logo.svg" alt="GEBATECH Logo" class="sheet-logo-img">
+          </div>
+          <div class="header-address">
+            <strong>GEBATECH GmbH</strong><br>
+            Gebäude- und Anlagentechnik<br>
+            Im Stadtgut Zone E 20, A-4407 Steyr<br>
+            T +43 7252 93074 | F -400<br>
+            Störungsdienst -500 | office@gebatech.at<br>
+            www.gebatech.at
+          </div>
+        </header>
+
+        <!-- Haupttitel & Auftragsnummer -->
+        <div class="sheet-title-section">
+          <h2 class="sheet-main-title" id="modal-main-title">KUNDENDIENSTAUFTRAG</h2>
+          <div class="sheet-order-id-box">
+            <label for="modalOrderId">Auftrags-Nr.</label>
+            <input type="text" id="modalOrderId" class="sheet-input-flat sheet-order-id-input" placeholder="z.B. 2026-0042">
+          </div>
+        </div>
+
+        <!-- Kopfdaten-Matrix -->
+        <div class="sheet-grid-wrapper">
+          <div class="sheet-form-field">
+            <label for="modalClientName">Auftraggeber</label>
+            <input type="text" id="modalClientName" class="sheet-input-flat">
+          </div>
+          <div class="sheet-form-field">
+            <label for="modalClientAddress">Straße / PLZ / Ort</label>
+            <input type="text" id="modalClientAddress" class="sheet-input-flat">
+          </div>
+          
+          <div class="sheet-row-fields">
+            <div class="sheet-form-field">
+              <label for="modalContact">Ansprechpartner</label>
+              <input type="text" id="modalContact" class="sheet-input-flat">
+            </div>
+            <div class="sheet-row-fields double">
+              <div class="sheet-form-field">
+                <label for="modalPhone">Telefon</label>
+                <input type="text" id="modalPhone" class="sheet-input-flat">
+              </div>
+              <div class="sheet-form-field">
+                <label for="modalDate">Datum</label>
+                <input type="date" id="modalDate" class="sheet-input-flat">
+              </div>
+            </div>
+          </div>
+
+          <div class="sheet-form-field">
+            <label for="modalCustomerName">Objektanschrift</label>
+            <input type="text" id="modalCustomerName" class="sheet-input-flat">
+          </div>
+          <div class="sheet-form-field">
+            <label for="modalCustomerAddress">Straße / PLZ / Ort</label>
+            <input type="text" id="modalCustomerAddress" class="sheet-input-flat">
+          </div>
+        </div>
+
+        <!-- Auftragsgrundlage (Zahnrad Checkboxen) -->
+        <div class="sheet-section-title">Auftragsgrundlage</div>
+        <div class="sheet-checkbox-group">
+          <label class="sheet-checkbox-label">
+            <input type="checkbox" id="basisReparatur" class="gear-checkbox">
+            <span class="gear-checkbox-custom"></span> Reparatur
+          </label>
+          <label class="sheet-checkbox-label">
+            <input type="checkbox" id="basisStoerung" class="gear-checkbox">
+            <span class="gear-checkbox-custom"></span> Störung
+          </label>
+          <label class="sheet-checkbox-label">
+            <input type="checkbox" id="basisWartung" class="gear-checkbox">
+            <span class="gear-checkbox-custom"></span> Wartung
+          </label>
+          <label class="sheet-checkbox-label">
+            <input type="checkbox" id="basisPruefung" class="gear-checkbox">
+            <span class="gear-checkbox-custom"></span> Prüfung
+          </label>
+          <label class="sheet-checkbox-label">
+            <input type="checkbox" id="basisInbetriebnahme" class="gear-checkbox">
+            <span class="gear-checkbox-custom"></span> Inbetriebnahme
+          </label>
+          <label class="sheet-checkbox-label">
+            <input type="checkbox" id="basisInstallation" class="gear-checkbox">
+            <span class="gear-checkbox-custom"></span> Installation
+          </label>
+        </div>
+        <div class="sheet-basis-notes">
+          <input type="text" id="modalBasisNote1" class="sheet-input-line" placeholder="Details zur Auftragsgrundlage...">
+          <input type="text" id="modalBasisNote2" class="sheet-input-line">
+        </div>
+
+        <!-- Leistungsbericht -->
+        <div class="sheet-section-title">Leistungsbericht</div>
+        <div class="sheet-report-wrapper">
+          <textarea id="modalLeistungsbericht" class="sheet-textarea-ruled" rows="10" placeholder="Beschreibung der durchgeführten Arbeiten..."></textarea>
+        </div>
+
+        <!-- Materialtabelle -->
+        <div class="sheet-section-title flex-title">
+          <span>Verbrauchtes Material</span>
+          <button type="button" class="btn-action-small no-print" id="btnAddMaterialRow">+ Zeile hinzufügen</button>
+        </div>
+        <table class="sheet-table" id="materialTable">
+          <thead>
+            <tr>
+              <th style="width: 15%;">Menge</th>
+              <th style="width: 42%;">Bezeichnung</th>
+              <th style="width: 38%;">Material</th>
+              <th class="no-print" style="width: 5%;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Zeilen werden dynamisch erzeugt -->
+          </tbody>
+        </table>
+
+        <!-- Arbeitszeit / Stundenzettel -->
+        <div class="sheet-section-title flex-title">
+          <span>Arbeitszeit / Stundenzettel</span>
+          <button type="button" class="btn-action-small no-print" id="btnAddTimeRow">+ Zeile hinzufügen</button>
+        </div>
+        <div class="table-responsive-wrapper">
+          <table class="sheet-table" id="timeTable">
+            <thead>
+              <tr>
+                <th style="width: 10%;">Tag/Monat</th>
+                <th style="width: 25%;">Name - Tätigkeit</th>
+                <th style="width: 18%;">Arbeitszeit von - bis</th>
+                <th style="width: 5%;">N</th>
+                <th style="width: 5%;">50%</th>
+                <th style="width: 5%;">100%</th>
+                <th style="width: 18%;">Fahrtzeit von / bis</th>
+                <th style="width: 10%;">km AN/AB</th>
+                <th class="no-print" style="width: 4%;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Zeilen werden dynamisch erzeugt -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer-Bereich: Abschluss & Unterschriften -->
+        <div class="sheet-footer-row">
+          <div class="footer-status-column">
+            <div class="sheet-footer-checkboxes">
+              <label class="sheet-checkbox-label">
+                <input type="checkbox" id="statusAbgeschlossen" class="gear-checkbox">
+                <span class="gear-checkbox-custom"></span> erfolgreich abgeschlossen
+              </label>
+              <label class="sheet-checkbox-label">
+                <input type="checkbox" id="statusFolgetermin" class="gear-checkbox">
+                <span class="gear-checkbox-custom"></span> Folgetermin notwendig
+              </label>
+            </div>
+            
+            <div class="footer-note-text">
+              Normalarbeitszeit: Montag - Donnerstag 7:00 - 16:00 Uhr und Freitag 7:00 - 14:30 Uhr. Angefangene Arbeitsstunden werden auf 1/2 Stunden aufgerundet.<br>
+              Te - Techniker, Fa - Facharbeiter, He - Helfer, Re - Reinigungskraft. Für die ausgeführten Leistungen gelten unsere Geschäftsbedingungen.
+            </div>
+          </div>
+          
+          <div class="footer-signatures-column">
+            <!-- Unterschrift des Technikers -->
+            <div class="signature-box-wrapper">
+              <div class="signature-title">Handzeichen / Unterschrift des Technikers</div>
+              <div class="signature-canvas-container">
+                <canvas id="technicianSigCanvas" class="signature-canvas-element"></canvas>
+              </div>
+              <button type="button" class="btn-clear-sig no-print" id="btnClearTechSig">Löschen</button>
+            </div>
+            <!-- Unterschrift des Kunden -->
+            <div class="signature-box-wrapper">
+              <div class="signature-title">Unterschrift / Stempel des Kunden</div>
+              <div class="signature-canvas-container">
+                <canvas id="customerSigCanvas" class="signature-canvas-element"></canvas>
+              </div>
+              <button type="button" class="btn-clear-sig no-print" id="btnClearCustSig">Löschen</button>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- /gebatech-sheet -->
+      
+    </div>
+  </div>
 
   <script type="module" src="js/app.js"></script>
 </body>
