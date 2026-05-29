@@ -1,4 +1,4 @@
-import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.4';
+import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.5';
 import { 
   elements, 
   renderCategoryFilter, 
@@ -13,8 +13,8 @@ import {
   clearAllModalFormFields,
   techSigPad,
   custSigPad
-} from './ui.js?v=1.0.4';
-import { parsePdfOrder } from './pdf-handler.js?v=1.0.4';
+} from './ui.js?v=1.0.5';
+import { parsePdfOrder } from './pdf-handler.js?v=1.0.5';
 
 // Mail-Konfigurations-Cache
 let cachedMailAddress = 'adl@gebatech.at'; // Standard Fallback
@@ -415,8 +415,8 @@ async function handleOrderCompletion() {
   try {
     gpsData = await getGeolocation();
     
-    // GPS & Zeitstempel uneditierbar einfügen
-    const latLngStr = `${gpsData.lat.toFixed(6)}°, ${gpsData.lng.toFixed(6)}°`;
+    // GPS & Zeitstempel uneditierbar einfügen (ohne fehleranfälliges Grad-Symbol)
+    const latLngStr = `${gpsData.lat.toFixed(6)}, ${gpsData.lng.toFixed(6)}`;
     const formatTime = (d) => {
       const pad = (n) => String(n).padStart(2, '0');
       return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;

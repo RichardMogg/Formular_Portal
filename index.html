@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Formular-Portal</title>
-  <link rel="stylesheet" href="css/app.css?v=1.0.4">
+  <link rel="stylesheet" href="css/app.css?v=1.0.5">
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -122,13 +122,13 @@
           <div class="header-logo">
             <img src="assets/logo.svg" alt="GEBATECH Logo" class="sheet-logo-img">
           </div>
-          <div class="header-address">
-            <strong>GEBATECH GmbH</strong><br>
-            Gebäude- und Anlagentechnik<br>
-            Im Stadtgut Zone E 20, A-4407 Steyr<br>
-            T +43 7252 93074 | F -400<br>
-            Störungsdienst -500 | office@gebatech.at<br>
-            www.gebatech.at
+          <div class="header-address" style="line-height: 1.4;">
+            <div><strong>GEBATECH GmbH</strong></div>
+            <div>Gebäude- und Anlagentechnik</div>
+            <div>Im Stadtgut Zone E 20, A-4407 Steyr</div>
+            <div>T +43 7252 93074 | F -400</div>
+            <div>Störungsdienst -500 | office@gebatech.at</div>
+            <div>www.gebatech.at</div>
           </div>
         </header>
 
@@ -280,13 +280,15 @@
               </label>
             </div>
             
-            <div class="sheet-safety-verification" id="safetyVerificationBlock" style="margin: 12px 0; padding: 6px 10px; background: #f8fafc; border-left: 3px solid #005ca9; border-right: 1px solid #cbd5e1; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; border-radius: 4px; font-size: 10px; font-weight: 800; color: #334155;">
-              Standort-Signatur: GPS <span id="modalGpsCoords" style="color: #003f75;">Ausstehend (wird beim Abschließen erfasst)</span> | Zeitstempel: <span id="modalGpsTimestamp" style="color: #003f75;">Ausstehend</span>
+            <div class="sheet-safety-verification" id="safetyVerificationBlock" style="margin: 12px 0; padding: 6px 10px; background: #f8fafc; border-left: 3px solid #005ca9; border-right: 1px solid #cbd5e1; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; border-radius: 4px; font-size: 10px; font-weight: 800; color: #334155; display: flex; flex-wrap: wrap; gap: 8px;">
+              <span>Standort-Signatur: GPS <strong id="modalGpsCoords" style="color: #003f75;">Ausstehend (wird beim Abschließen erfasst)</strong></span>
+              <span>|</span>
+              <span>Zeitstempel: <strong id="modalGpsTimestamp" style="color: #003f75;">Ausstehend</strong></span>
             </div>
             
-            <div class="footer-note-text">
-              Normalarbeitszeit: Montag - Donnerstag 7:00 - 16:00 Uhr und Freitag 7:00 - 14:30 Uhr. Angefangene Arbeitsstunden werden auf 1/2 Stunden aufgerundet.<br>
-              Te - Techniker, Fa - Facharbeiter, He - Helfer, Re - Reinigungskraft. Für die ausgeführten Leistungen gelten unsere Geschäftsbedingungen.
+            <div class="footer-note-text" style="line-height: 1.4;">
+              <div style="margin-bottom: 4px;">Normalarbeitszeit: Montag - Donnerstag 7:00 - 16:00 Uhr und Freitag 7:00 - 14:30 Uhr. Angefangene Arbeitsstunden werden auf 1/2 Stunden aufgerundet.</div>
+              <div>Te - Techniker, Fa - Facharbeiter, He - Helfer, Re - Reinigungskraft. Für die ausgeführten Leistungen gelten unsere Geschäftsbedingungen.</div>
             </div>
           </div>
           
@@ -315,6 +317,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/app.js?v=1.0.4"></script>
+  <script type="module" src="js/app.js?v=1.0.5"></script>
 </body>
 </html>
