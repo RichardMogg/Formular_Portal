@@ -487,8 +487,15 @@ async function handleOrderCompletion() {
     
     // Fallback: Direkter PDF-Download + mailto: Link
     if (!sharedSuccessfully) {
-      // PDF-Download im Browser triggern
-      await window.html2pdf().set(opt).from(element).save();
+      // PDF-Download im Browser triggern (lädt den bereits fehlerfrei erstellten Blob herunter)
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
       
       // Mailto Link öffnen
       const mailtoUrl = `mailto:${cachedMailAddress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(cachedMailBody + '\n\n[Bitte hängen Sie das soeben heruntergeladene Lieferschein-PDF an diese Mail an]')}`;
