@@ -16,6 +16,9 @@ function initSignatureOverlay() {
   buildCustomerReasonOptions();
   bindPreview(elements.technicianSigCanvas, 'tech');
   bindPreview(elements.customerSigCanvas, 'customer');
+  bindCompletionValidation();
+  bindCustomerClearGuard();
+  updateCustomerClearButtonState();
 }
 
 function buildCustomerReasonOptions() {
@@ -58,6 +61,7 @@ function handleReasonChange(changedInput) {
     clearCustomerReasonCanvas();
   }
 
+  updateCustomerClearButtonState();
   triggerDraftAutoSave();
 }
 
@@ -91,6 +95,58 @@ function clearCustomerReasonCanvas() {
   if (custSigPad) {
     custSigPad.clear();
   }
+}
+
+function bindCompletionValidation() {
+  const btn = elements.btnCompleteOrder;
+  if (!btn || btn.dataset.signatureValidationBound === '1') return;
+
+  btn.addEventListener('click', validateRequiredSignaturesBeforeCompletion, true);
+  btn.dataset.signatureValidationBound = '1';
+}
+
+function validateRequiredSignaturesBeforeCompletion(event) {
+  if (isPadEmpty(techSigPad)) {
+    blockEvent(event);
+    alert('Bitte erfassen Sie die Techniker-Unterschrift.');
+    return;
+  }
+
+  if (isPadEmpty(custSigPad) && !isCustomerReasonActive()) {
+    blockEvent(event);
+    alert('Bitte erfassen Sie die Kundenunterschrift oder wählen Sie "Kunde nicht anwesend" bzw. "Unterschrift wird verweigert".');
+  }
+}
+
+function isPadEmpty(pad) {
+  return !pad || (typeof pad.isEmpty === 'function' ? pad.isEmpty() : true);
+}
+
+function blockEvent(event) {
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}
+
+function bindCustomerClearGuard() {
+  const btn = elements.btnClearCustSig;
+  if (!btn || btn.dataset.customerClearGuardBound === '1') return;
+
+  btn.addEventListener('click', (event) => {
+    if (!isCustomerReasonActive()) return;
+    blockEvent(event);
+  }, true);
+
+  btn.dataset.customerClearGuardBound = '1';
+}
+
+function updateCustomerClearButtonState() {
+  const btn = elements.btnClearCustSig;
+  if (!btn) return;
+
+  const locked = isCustomerReasonActive();
+  btn.disabled = locked;
+  btn.setAttribute('aria-disabled', String(locked));
+  btn.title = locked ? 'Bei aktivem Grund kann die Kundenunterschrift nicht gelöscht werden.' : '';
 }
 
 function buildOverlay() {
@@ -257,6 +313,7 @@ function acceptSignature() {
     activeSmallPad.pointsCount = 1;
   }
 
+  updateCustomerClearButtonState();
   triggerDraftAutoSave();
   closeOverlay();
 }
@@ -264,6 +321,7 @@ function acceptSignature() {
 function clearCustomerReasonSelection() {
   if (reasonNotPresent) reasonNotPresent.checked = false;
   if (reasonRefused) reasonRefused.checked = false;
+  updateCustomerClearButtonState();
 }
 
 function drawOverlayToSmallCanvas() {
