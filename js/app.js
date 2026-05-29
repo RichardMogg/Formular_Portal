@@ -441,6 +441,9 @@ async function handleOrderCompletion() {
     // Normalisiere den DOM-Tree, um adjacent text nodes zu bereinigen und IndexSizeErrors/setEnd Errors in html2canvas zu verhindern!
     element.normalize();
     
+    // Synchronen Reflow (Layout-Berechnung) erzwingen, damit die Textknoten-Indizes im Layout-Tree 100% aktuell sind!
+    const forceReflow = element.offsetHeight;
+    
     const opt = {
       margin: [10, 10, 10, 10],
       filename: filename,
