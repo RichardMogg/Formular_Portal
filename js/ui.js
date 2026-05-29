@@ -174,9 +174,13 @@ export function openLieferscheinModal() {
 }
 
 export function closeLieferscheinModal() {
-  // Sichert den Entwurf vor dem Schließen
-  const draft = collectLieferscheinData();
-  saveLieferscheinDraft(draft);
+  // Sichert den Entwurf vor dem Schließen, außer es wurde explizit geleert!
+  if (state.isDraftCleared) {
+    state.isDraftCleared = false;
+  } else {
+    const draft = collectLieferscheinData();
+    saveLieferscheinDraft(draft);
+  }
   
   elements.lieferscheinModal.classList.add('hidden');
   document.body.style.overflow = '';

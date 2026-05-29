@@ -3,7 +3,8 @@ export const state = {
   query: '',
   category: 'all',
   orderContext: null,
-  lieferscheinDraft: null
+  lieferscheinDraft: null,
+  isDraftCleared: false
 };
 
 const LOCAL_STORAGE_KEY = 'activeOrderContext';
