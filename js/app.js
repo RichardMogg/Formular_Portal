@@ -1,4 +1,4 @@
-import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.6';
+import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.7';
 import { 
   elements, 
   renderCategoryFilter, 
@@ -13,8 +13,8 @@ import {
   clearAllModalFormFields,
   techSigPad,
   custSigPad
-} from './ui.js?v=1.0.6';
-import { parsePdfOrder } from './pdf-handler.js?v=1.0.6';
+} from './ui.js?v=1.0.7';
+import { parsePdfOrder } from './pdf-handler.js?v=1.0.7';
 
 // Mail-Konfigurations-Cache
 let cachedMailAddress = 'adl@gebatech.at'; // Standard Fallback
@@ -304,9 +304,9 @@ function prepareDomForPdf(container) {
       }
     }
     
-    // Fallback if empty to preserve spacing and prevent collapse
+    // Fallback if empty to preserve spacing and prevent collapse (using standard space instead of crash-prone non-breaking space)
     if (!val.trim()) {
-      val = isTextarea ? 'Keine Arbeiten dokumentiert.' : '\u00A0';
+      val = isTextarea ? 'Keine Arbeiten dokumentiert.' : ' ';
     }
     
     if (isTextarea) {
@@ -315,7 +315,7 @@ function prepareDomForPdf(container) {
       if (printDiv) {
         // Zeilen in separate Divs aufteilen statt <br>, um html2canvas Range/setEnd-Berechnungsfehler zu vermeiden!
         printDiv.innerHTML = escapeHtml(val).split('\n')
-          .map(line => `<div class="pdf-report-line" style="min-height: 1.2em; word-break: break-word;">${line.trim() ? line : '\u00A0'}</div>`)
+          .map(line => `<div class="pdf-report-line" style="min-height: 1.2em; word-break: break-word;">${line.trim() ? line : ' '}</div>`)
           .join('');
         
         // Verstecke die Original-Textarea und zeige das Print-Div an
