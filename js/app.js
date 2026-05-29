@@ -289,6 +289,31 @@ function getGeolocation() {
   });
 }
 
+function copySignatureCanvasForPdf(sourceCanvas, targetCanvas, scaleFactor = 1.2) {
+  if (!sourceCanvas || !targetCanvas) return;
+
+  targetCanvas.width = sourceCanvas.width;
+  targetCanvas.height = sourceCanvas.height;
+
+  const ctx = targetCanvas.getContext('2d');
+  if (!ctx) return;
+
+  const width = sourceCanvas.width;
+  const height = sourceCanvas.height;
+  const scaledWidth = width * scaleFactor;
+  const scaledHeight = height * scaleFactor;
+  const offsetX = (width - scaledWidth) / 2;
+  const offsetY = (height - scaledHeight) / 2;
+
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(sourceCanvas, 0, 0, width, height, offsetX, offsetY, scaledWidth, scaledHeight);
+  ctx.restore();
+}
+
 // ========================================================
 // OFFSCREEN CLONING & DOM PREPARATION FOR EXPORT
 // ========================================================
@@ -371,22 +396,16 @@ function createOffscreenPdfClone(element) {
     }
   });
   
-  // 4. Unterschriften-Canvas-Inhalte kopieren
+  // 4. Unterschriften-Canvas-Inhalte kopieren und nur im PDF-Klon um 20 % vergroessern
   const cloneTechCanvas = clone.querySelector('#technicianSigCanvas');
   const cloneCustCanvas = clone.querySelector('#customerSigCanvas');
   
   if (cloneTechCanvas && elements.technicianSigCanvas) {
-    cloneTechCanvas.width = elements.technicianSigCanvas.width;
-    cloneTechCanvas.height = elements.technicianSigCanvas.height;
-    const ctx = cloneTechCanvas.getContext('2d');
-    ctx.drawImage(elements.technicianSigCanvas, 0, 0);
+    copySignatureCanvasForPdf(elements.technicianSigCanvas, cloneTechCanvas, 1.2);
   }
   
   if (cloneCustCanvas && elements.customerSigCanvas) {
-    cloneCustCanvas.width = elements.customerSigCanvas.width;
-    cloneCustCanvas.height = elements.customerSigCanvas.height;
-    const ctx = cloneCustCanvas.getContext('2d');
-    ctx.drawImage(elements.customerSigCanvas, 0, 0);
+    copySignatureCanvasForPdf(elements.customerSigCanvas, cloneCustCanvas, 1.2);
   }
   
   // 5. Label-for-Attribute im Klon entfernen, um Messungskonflikte mit ausgeblendeten Inputs zu verhindern
