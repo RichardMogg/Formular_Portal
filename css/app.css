@@ -703,8 +703,14 @@ main {
 
 .sheet-row-fields.double {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
+  grid-template-columns: 1fr;
   gap: 8px;
+}
+
+@media (min-width: 600px) {
+  .sheet-row-fields.double {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
 }
 
 /* Sektions-Titel */
@@ -1144,5 +1150,127 @@ main {
   .time-picker-wrapper input[type="time"] {
     width: auto !important;
   }
+}
+
+/* Force-Druck-Hilfsklassen zur Umgehung des html2canvas-Textarea-Bugs */
+.no-print-force {
+  display: none !important;
+}
+.print-show-force {
+  display: block !important;
+  background-image: linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 95%, #cbd5e1 95%, #cbd5e1 100%) !important;
+  background-size: 100% 24px !important;
+}
+
+/* Mobile Optimierungen für Smartphones (Verhindert Abschneiden & Quetschen) */
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: 10px 5px !important;
+  }
+  .modal-container {
+    gap: 8px !important;
+  }
+  .gebatech-sheet {
+    padding: 14px 10px !important;
+  }
+  .sheet-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .header-address {
+    text-align: center !important;
+  }
+  .sheet-logo-img {
+    width: 200px !important;
+  }
+  .sheet-title-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .sheet-order-id-box {
+    justify-content: space-between;
+  }
+  .sheet-checkbox-group {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+  .sheet-footer-row {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .footer-signatures-column {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .signature-canvas-container {
+    height: 75px !important;
+  }
+}
+
+/* Verhindert Quetschen von Tabellenfeldern auf Handydisplays (Aktiviert horizontales Wischen) */
+@media (max-width: 720px) {
+  #timeTable {
+    min-width: 720px !important;
+  }
+  #materialTable {
+    min-width: 500px !important;
+  }
+  .table-responsive-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    background: #ffffff;
+  }
+}
+
+/* Special class applied to the sheet temporarily during PDF generation to optimize A4 layout */
+.gebatech-sheet.pdf-export-mode {
+  padding: 15px !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  width: 100% !important;
+  background: #ffffff !important;
+}
+
+/* Optimize spacing for PDF export */
+.gebatech-sheet.pdf-export-mode .sheet-section-title {
+  margin: 8px 0 5px 0 !important;
+}
+
+.gebatech-sheet.pdf-export-mode .sheet-report-wrapper {
+  margin-bottom: 8px !important;
+}
+
+.gebatech-sheet.pdf-export-mode .sheet-table {
+  margin-bottom: 8px !important;
+}
+
+.gebatech-sheet.pdf-export-mode .sheet-footer-row {
+  margin-top: 8px !important;
+  padding-top: 6px !important;
+}
+
+.gebatech-sheet.pdf-export-mode .sheet-checkbox-group {
+  margin-bottom: 8px !important;
+}
+
+.gebatech-sheet.pdf-export-mode .sheet-basis-notes {
+  margin-bottom: 8px !important;
+}
+
+.gebatech-sheet.pdf-export-mode .signature-box-wrapper {
+  padding: 6px !important;
+  gap: 4px !important;
+}
+
+.gebatech-sheet.pdf-export-mode .signature-canvas-container {
+  height: 80px !important;
 }
 

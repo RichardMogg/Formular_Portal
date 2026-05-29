@@ -269,6 +269,80 @@ function getGeolocation() {
 }
 
 // ========================================================
+// DOM PREPARATION FOR PDF GENERATION (Bypasses html2canvas Input Bugs)
+// ========================================================
+function prepareDomForPdf(container) {
+  const restorations = [];
+  
+  // Find all textual inputs and textareas
+  const inputs = container.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="image"]), textarea');
+  
+  inputs.forEach(input => {
+    const isTextarea = input.tagName.toLowerCase() === 'textarea';
+    const span = document.createElement(isTextarea ? 'div' : 'span');
+    span.className = 'pdf-temp-text';
+    
+    let val = input.value || '';
+    
+    // Formatting specific types
+    if (input.type === 'date' && val) {
+      const parts = val.split('-');
+      if (parts.length === 3) {
+        val = `${parts[2]}.${parts[1]}.${parts[0]}`;
+      }
+    }
+    
+    // Fallback if empty to preserve spacing and prevent collapse
+    if (!val.trim()) {
+      val = isTextarea ? 'Keine Arbeiten dokumentiert.' : '\u00A0';
+    }
+    
+    span.textContent = val;
+    
+    // Copy computed styling to ensure high-fidelity match
+    const computed = window.getComputedStyle(input);
+    span.style.fontSize = computed.fontSize || '11px';
+    span.style.fontWeight = computed.fontWeight || '700';
+    span.style.fontFamily = computed.fontFamily || 'inherit';
+    span.style.color = '#1a1a1a';
+    span.style.lineHeight = computed.lineHeight || 'normal';
+    span.style.padding = computed.padding || '0';
+    span.style.boxSizing = 'border-box';
+    span.style.display = isTextarea ? 'block' : 'inline-block';
+    
+    if (isTextarea) {
+      span.style.whiteSpace = 'pre-wrap';
+      span.style.wordBreak = 'break-word';
+      span.style.minHeight = '100px';
+      span.style.backgroundImage = 'linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 95%, #cbd5e1 95%, #cbd5e1 100%)';
+      span.style.backgroundSize = '100% 24px';
+    } else {
+      // Inputs in time-picker should keep a flexible layout
+      if (input.classList.contains('time-von') || input.classList.contains('time-bis')) {
+        span.style.width = 'auto';
+        span.style.minWidth = '35px';
+      } else {
+        span.style.width = '100%';
+      }
+    }
+    
+    // Hide original element and insert temporary static span
+    const originalDisplay = input.style.display;
+    input.style.display = 'none';
+    input.parentNode.insertBefore(span, input);
+    
+    restorations.push(() => {
+      span.remove();
+      input.style.display = originalDisplay;
+    });
+  });
+  
+  return () => {
+    restorations.forEach(restore => restore());
+  };
+}
+
+// ========================================================
 // ORDER COMPLETION & EMAIL FORWARDING WORKFLOW
 // ========================================================
 async function handleOrderCompletion() {
@@ -338,6 +412,12 @@ async function handleOrderCompletion() {
     const element = document.getElementById('lieferscheinSheet');
     const filename = `Arbeitsnachweis-${orderId}.pdf`;
     
+    // A4-Optimierungsklasse hinzufügen
+    element.classList.add('pdf-export-mode');
+    
+    // Ersetze alle Inputs und Textareas durch statische Textspans, um html2canvas-Crashes zu umgehen
+    const restoreInputs = prepareDomForPdf(element);
+    
     const opt = {
       margin: [10, 10, 10, 10],
       filename: filename,
@@ -351,7 +431,14 @@ async function handleOrderCompletion() {
     };
     
     // Erzeuge das PDF-Dokument als Binär-Blob
-    const pdfBlob = await window.html2pdf().set(opt).from(element).output('blob');
+    let pdfBlob = null;
+    try {
+      pdfBlob = await window.html2pdf().set(opt).from(element).output('blob');
+    } finally {
+      // In jedem Fall (auch bei Fehlern) die Live-Inputs wiederherstellen und A4-Optimierung aufheben!
+      restoreInputs();
+      element.classList.remove('pdf-export-mode');
+    }
     
     // 3. E-Mail Versand per Web Share API oder Fallback
     const subject = `Arbeitsnachweis/Lieferschein ${orderId}`;

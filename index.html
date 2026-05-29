@@ -214,7 +214,8 @@
         <!-- Leistungsbericht -->
         <div class="sheet-section-title">Leistungsbericht</div>
         <div class="sheet-report-wrapper">
-          <textarea id="modalLeistungsbericht" class="sheet-textarea-ruled" rows="10" placeholder="Beschreibung der durchgeführten Arbeiten..."></textarea>
+          <textarea id="modalLeistungsbericht" class="sheet-textarea-ruled no-print" rows="10" placeholder="Beschreibung der durchgeführten Arbeiten..."></textarea>
+          <div id="modalLeistungsberichtPrint" class="sheet-report-print print-only-block" style="display: none; white-space: pre-wrap; font-size: 13px; font-weight: 700; line-height: 24px; color: #1a1a1a; padding: 8px; min-height: 60px; box-sizing: border-box;"></div>
         </div>
 
         <!-- Materialtabelle -->
@@ -222,19 +223,21 @@
           <span>Verbrauchtes Material</span>
           <button type="button" class="btn-action-small no-print" id="btnAddMaterialRow">+ Zeile hinzufügen</button>
         </div>
-        <table class="sheet-table" id="materialTable">
-          <thead>
-            <tr>
-              <th style="width: 15%;">Menge</th>
-              <th style="width: 42%;">Bezeichnung</th>
-              <th style="width: 38%;">Material</th>
-              <th class="no-print" style="width: 5%;"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Zeilen werden dynamisch erzeugt -->
-          </tbody>
-        </table>
+        <div class="table-responsive-wrapper">
+          <table class="sheet-table" id="materialTable">
+            <thead>
+              <tr>
+                <th style="width: 15%;">Menge</th>
+                <th style="width: 42%;">Bezeichnung</th>
+                <th style="width: 38%;">Material</th>
+                <th class="no-print" style="width: 5%;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Zeilen werden dynamisch erzeugt -->
+            </tbody>
+          </table>
+        </div>
 
         <!-- Arbeitszeit / Stundenzettel -->
         <div class="sheet-section-title flex-title">

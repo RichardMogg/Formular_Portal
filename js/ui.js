@@ -341,9 +341,9 @@ export function addTimeRow(tag = '', name = '', von = '', bis = '', n = '', p50 
     <td><input type="text" class="sheet-table-input time-name" value="${escapeAttribute(name)}" placeholder="Techniker - Tätigkeit"></td>
     <td>
       <div class="time-picker-wrapper">
-        <input type="time" class="sheet-table-input time-von" value="${escapeAttribute(von)}">
+        <input type="time" class="sheet-table-input time-von" value="${escapeAttribute(von)}" step="1800">
         <span>-</span>
-        <input type="time" class="sheet-table-input time-bis" value="${escapeAttribute(bis)}">
+        <input type="time" class="sheet-table-input time-bis" value="${escapeAttribute(bis)}" step="1800">
       </div>
     </td>
     <td><input type="text" class="sheet-table-input time-n" value="${escapeAttribute(n)}" placeholder="8"></td>
