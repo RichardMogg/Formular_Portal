@@ -1,4 +1,4 @@
-import { state, loadOrderContext, saveOrderContext, clearOrderContext, shredCompleteActiveOrder } from './state.js';
+import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js';
 import { 
   elements, 
   renderCategoryFilter, 
@@ -128,7 +128,7 @@ function bindEvents() {
   elements.btnResetLieferschein.addEventListener('click', () => {
     if (confirm('Möchten Sie alle eingetragenen Lieferschein-Daten und Unterschriften wirklich unwiderruflich löschen?')) {
       clearAllModalFormFields();
-      triggerDraftAutoSave(); // Sofort leeren Entwurf speichern
+      clearLieferscheinDraft(); // Löscht den Entwurf komplett aus dem Speicher, statt einen leeren Entwurf zu sichern!
     }
   });
 
