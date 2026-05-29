@@ -1,4 +1,4 @@
-import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js';
+import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.3';
 import { 
   elements, 
   renderCategoryFilter, 
@@ -13,8 +13,8 @@ import {
   clearAllModalFormFields,
   techSigPad,
   custSigPad
-} from './ui.js';
-import { parsePdfOrder } from './pdf-handler.js';
+} from './ui.js?v=1.0.3';
+import { parsePdfOrder } from './pdf-handler.js?v=1.0.3';
 
 // Mail-Konfigurations-Cache
 let cachedMailAddress = 'adl@gebatech.at'; // Standard Fallback
