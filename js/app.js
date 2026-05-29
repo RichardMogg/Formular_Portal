@@ -217,6 +217,43 @@ async function loadMailConfiguration() {
 }
 
 // ========================================================
+// GEOLOCATION SECURITY GATE
+// ========================================================
+function getGeolocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation wird von diesem Browser nicht unterstützt.'));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          timestamp: new Date(position.timestamp || Date.now())
+        });
+      },
+      (error) => {
+        let msg = 'Standorterfassung fehlgeschlagen.';
+        if (error.code === error.PERMISSION_DENIED) {
+          msg = 'Standortfreigabe verweigert.';
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          msg = 'Standortinformationen nicht verfügbar.';
+        } else if (error.code === error.TIMEOUT) {
+          msg = 'Zeitüberschreitung bei der Standorterfassung.';
+        }
+        reject(new Error(msg));
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  });
+}
+
+// ========================================================
 // ORDER COMPLETION & EMAIL FORWARDING WORKFLOW
 // ========================================================
 async function handleOrderCompletion() {
@@ -233,6 +270,31 @@ async function handleOrderCompletion() {
   const btn = elements.btnCompleteOrder;
   const originalText = btn.textContent;
   btn.disabled = true;
+  btn.textContent = 'Erfasse GPS-Standort...';
+
+  let gpsData = null;
+  try {
+    gpsData = await getGeolocation();
+    
+    // GPS & Zeitstempel uneditierbar einfügen
+    const latLngStr = `${gpsData.lat.toFixed(6)}°, ${gpsData.lng.toFixed(6)}°`;
+    const formatTime = (d) => {
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+    const timestampStr = formatTime(gpsData.timestamp);
+    
+    elements.modalGpsCoords.textContent = latLngStr;
+    elements.modalGpsTimestamp.textContent = timestampStr;
+    console.log(`[SafetyVerification] GPS erfasst: ${latLngStr} um ${timestampStr}`);
+  } catch (gpsError) {
+    console.error('GPS-Erfassungsfehler:', gpsError);
+    alert(`Auftrag kann nicht abgeschlossen werden!\n\nFür die digitale Sicherheit und Verifizierung des Arbeitsnachweises ist die Standorterfassung zwingend erforderlich.\n\nDetails: ${gpsError.message}`);
+    btn.disabled = false;
+    btn.textContent = originalText;
+    return; // Abbruch!
+  }
+
   btn.textContent = 'Erstelle Lieferschein PDF...';
 
   try {

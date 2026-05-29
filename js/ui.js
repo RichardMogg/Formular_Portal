@@ -68,7 +68,11 @@ export const elements = {
   btnClearTechSig: document.getElementById('btnClearTechSig'),
   btnClearCustSig: document.getElementById('btnClearCustSig'),
   btnCompleteOrder: document.getElementById('btnCompleteOrder'),
-  btnPrintLieferschein: document.getElementById('btnPrintLieferschein')
+  btnPrintLieferschein: document.getElementById('btnPrintLieferschein'),
+  
+  // GPS & Verifizierung
+  modalGpsCoords: document.getElementById('modalGpsCoords'),
+  modalGpsTimestamp: document.getElementById('modalGpsTimestamp')
 };
 
 // Globale Signaturpads-Instanzen
@@ -299,6 +303,13 @@ function clearAllModalFormFields() {
   
   if (techSigPad) techSigPad.clear();
   if (custSigPad) custSigPad.clear();
+  
+  if (elements.modalGpsCoords) {
+    elements.modalGpsCoords.textContent = 'Ausstehend (wird beim Abschließen erfasst)';
+  }
+  if (elements.modalGpsTimestamp) {
+    elements.modalGpsTimestamp.textContent = 'Ausstehend';
+  }
 }
 
 // Dynamisches Hinzufügen von Materialzeilen
@@ -404,6 +415,10 @@ export function collectLieferscheinData() {
     statusAbgeschlossen: elements.statusAbgeschlossen.checked,
     statusFolgetermin: elements.statusFolgetermin.checked,
     
+    // GPS & Verifizierung
+    gpsCoords: elements.modalGpsCoords ? elements.modalGpsCoords.textContent : '',
+    gpsTimestamp: elements.modalGpsTimestamp ? elements.modalGpsTimestamp.textContent : '',
+    
     // Unterschriften als Base64
     techSig: techSigPad ? techSigPad.getDataUrl() : '',
     custSig: custSigPad ? custSigPad.getDataUrl() : ''
@@ -450,6 +465,13 @@ function applyLieferscheinDraft(draft) {
   
   elements.statusAbgeschlossen.checked = !!draft.statusAbgeschlossen;
   elements.statusFolgetermin.checked = !!draft.statusFolgetermin;
+  
+  if (draft.gpsCoords && elements.modalGpsCoords) {
+    elements.modalGpsCoords.textContent = draft.gpsCoords;
+  }
+  if (draft.gpsTimestamp && elements.modalGpsTimestamp) {
+    elements.modalGpsTimestamp.textContent = draft.gpsTimestamp;
+  }
   
   // Unterschriften wiederherstellen
   if (techSigPad) techSigPad.clear();
