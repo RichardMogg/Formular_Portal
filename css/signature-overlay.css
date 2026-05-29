@@ -7,20 +7,8 @@
 }
 
 .signature-canvas-container::after {
-  content: 'Zum Unterschreiben antippen';
-  position: absolute;
-  inset: auto 8px 8px 8px;
-  min-height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.88);
-  color: #003f75;
-  font-size: 11px;
-  font-weight: 900;
-  pointer-events: none;
-  border: 1px solid rgba(0, 92, 169, 0.18);
+  content: none !important;
+  display: none !important;
 }
 
 .signature-canvas-element {
