@@ -1,4 +1,4 @@
-import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.7';
+import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.8';
 import { 
   elements, 
   renderCategoryFilter, 
@@ -13,8 +13,8 @@ import {
   clearAllModalFormFields,
   techSigPad,
   custSigPad
-} from './ui.js?v=1.0.7';
-import { parsePdfOrder } from './pdf-handler.js?v=1.0.7';
+} from './ui.js?v=1.0.8';
+import { parsePdfOrder } from './pdf-handler.js?v=1.0.8';
 
 // Mail-Konfigurations-Cache
 let cachedMailAddress = 'adl@gebatech.at'; // Standard Fallback
@@ -284,62 +284,56 @@ function getGeolocation() {
 }
 
 // ========================================================
-// DOM PREPARATION FOR PDF GENERATION (Bypasses html2canvas Input Bugs)
+// OFFSCREEN CLONING & DOM PREPARATION FOR EXPORT
 // ========================================================
-function prepareDomForPdf(container) {
-  const restorations = [];
+function createOffscreenPdfClone(element) {
+  // 1. Briefblatt klonen
+  const clone = element.cloneNode(true);
   
-  // Find all textual inputs and textareas
-  const inputs = container.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="image"]), textarea');
+  // A4-Optimierungsklasse hinzufügen
+  clone.classList.add('pdf-export-mode');
   
-  inputs.forEach(input => {
-    const isTextarea = input.tagName.toLowerCase() === 'textarea';
-    let val = input.value || '';
+  // 2. Eingabefelder (Inputs & Textareas) im Klon durch statische Texte ersetzen
+  const liveInputs = element.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="image"]), textarea');
+  const cloneInputs = clone.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="image"]), textarea');
+  
+  cloneInputs.forEach((cloneInput, index) => {
+    const liveInput = liveInputs[index];
+    if (!liveInput) return;
     
-    // Formatting specific types
-    if (input.type === 'date' && val) {
+    const isTextarea = cloneInput.tagName.toLowerCase() === 'textarea';
+    let val = liveInput.value || '';
+    
+    // Datums-Formatierung
+    if (liveInput.type === 'date' && val) {
       const parts = val.split('-');
       if (parts.length === 3) {
         val = `${parts[2]}.${parts[1]}.${parts[0]}`;
       }
     }
     
-    // Fallback if empty to preserve spacing and prevent collapse (using standard space instead of crash-prone non-breaking space)
+    // Fallback falls leer (Standard-Leerzeichen statt fehleranfälligem geschütztem Leerzeichen)
     if (!val.trim()) {
       val = isTextarea ? 'Keine Arbeiten dokumentiert.' : ' ';
     }
     
     if (isTextarea) {
-      // Nutzen Sie das bereits im HTML deklarierte und gestylte modalLeistungsberichtPrint div!
-      const printDiv = document.getElementById('modalLeistungsberichtPrint');
+      const printDiv = clone.querySelector('#modalLeistungsberichtPrint');
       if (printDiv) {
-        // Zeilen in separate Divs aufteilen statt <br>, um html2canvas Range/setEnd-Berechnungsfehler zu vermeiden!
         printDiv.innerHTML = escapeHtml(val).split('\n')
           .map(line => `<div class="pdf-report-line" style="min-height: 1.2em; word-break: break-word;">${line.trim() ? line : ' '}</div>`)
           .join('');
-        
-        // Verstecke die Original-Textarea und zeige das Print-Div an
-        const originalDisplay = input.style.display;
-        input.style.display = 'none';
-        
-        const originalPrintDisplay = printDiv.style.display;
         printDiv.style.display = 'block';
         printDiv.classList.add('print-show-force');
-        
-        restorations.push(() => {
-          input.style.display = originalDisplay;
-          printDiv.style.display = originalPrintDisplay;
-          printDiv.classList.remove('print-show-force');
-        });
       }
+      cloneInput.style.display = 'none';
     } else {
-      // Für einzeilige Eingabefelder erzeugen wir ein temporäres statisches span
       const span = document.createElement('span');
       span.className = 'pdf-temp-text';
       span.textContent = val;
       
-      // Berechnete Styles kopieren für perfekten Abgleich
-      const computed = window.getComputedStyle(input);
+      // Styles kopieren vom Live-Input
+      const computed = window.getComputedStyle(liveInput);
       span.style.fontSize = computed.fontSize || '11px';
       span.style.fontWeight = computed.fontWeight || '700';
       span.style.fontFamily = computed.fontFamily || 'inherit';
@@ -349,29 +343,50 @@ function prepareDomForPdf(container) {
       span.style.boxSizing = 'border-box';
       span.style.display = 'inline-block';
       
-      // Spezifisches Layout für Time-Picker Inputs erhalten
-      if (input.classList.contains('time-von') || input.classList.contains('time-bis')) {
+      if (liveInput.classList.contains('time-von') || liveInput.classList.contains('time-bis')) {
         span.style.width = 'auto';
         span.style.minWidth = '35px';
       } else {
         span.style.width = '100%';
       }
       
-      // Original verstecken und statisches span einfügen
-      const originalDisplay = input.style.display;
-      input.style.display = 'none';
-      input.parentNode.insertBefore(span, input);
-      
-      restorations.push(() => {
-        span.remove();
-        input.style.display = originalDisplay;
-      });
+      cloneInput.parentNode.insertBefore(span, cloneInput);
+      cloneInput.style.display = 'none';
     }
   });
   
-  return () => {
-    restorations.forEach(restore => restore());
-  };
+  // 3. Status von Checkboxen & Radios übertragen
+  const liveCheckboxes = element.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+  const cloneCheckboxes = clone.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+  cloneCheckboxes.forEach((cloneCb, index) => {
+    const liveCb = liveCheckboxes[index];
+    if (liveCb) {
+      cloneCb.checked = liveCb.checked;
+    }
+  });
+  
+  // 4. Unterschriften-Canvas-Inhalte kopieren
+  const cloneTechCanvas = clone.querySelector('#technicianSigCanvas');
+  const cloneCustCanvas = clone.querySelector('#customerSigCanvas');
+  
+  if (cloneTechCanvas && elements.technicianSigCanvas) {
+    cloneTechCanvas.width = elements.technicianSigCanvas.width;
+    cloneTechCanvas.height = elements.technicianSigCanvas.height;
+    const ctx = cloneTechCanvas.getContext('2d');
+    ctx.drawImage(elements.technicianSigCanvas, 0, 0);
+  }
+  
+  if (cloneCustCanvas && elements.customerSigCanvas) {
+    cloneCustCanvas.width = elements.customerSigCanvas.width;
+    cloneCustCanvas.height = elements.customerSigCanvas.height;
+    const ctx = cloneCustCanvas.getContext('2d');
+    ctx.drawImage(elements.customerSigCanvas, 0, 0);
+  }
+  
+  // 5. DOM normalisieren gegen html2canvas Range-Bugs
+  clone.normalize();
+  
+  return clone;
 }
 
 // ========================================================
@@ -436,6 +451,7 @@ async function handleOrderCompletion() {
 
   btn.textContent = 'Erstelle Lieferschein PDF...';
 
+  let holder = null;
   try {
     // 1. html2pdf.js dynamisch nachladen (um Ladezeiten beim App-Start zu minimieren)
     await loadHtml2PdfLibrary();
@@ -444,20 +460,22 @@ async function handleOrderCompletion() {
     const element = document.getElementById('lieferscheinSheet');
     const filename = `Arbeitsnachweis-${orderId}.pdf`;
     
-    // A4-Optimierungsklasse hinzufügen
-    element.classList.add('pdf-export-mode');
+    // Erstelle isolierten Offscreen-Klon, der vom restlichen UI unbeeinflusst bleibt!
+    const clone = createOffscreenPdfClone(element);
     
-    // Ersetze alle Inputs und Textareas durch statische Textspans, um html2canvas-Crashes zu umgehen
-    const restoreInputs = prepareDomForPdf(element);
+    // In temporären Holder einhängen und außerhalb des sichtbaren Bereichs platzieren
+    holder = document.createElement('div');
+    holder.style.position = 'fixed';
+    holder.style.left = '-10000px';
+    holder.style.top = '0';
+    holder.style.width = '210mm';
+    holder.style.background = '#ffffff';
+    holder.style.zIndex = '-99999';
+    holder.appendChild(clone);
+    document.body.appendChild(holder);
     
-    // Normalisiere den DOM-Tree, um adjacent text nodes zu bereinigen und IndexSizeErrors/setEnd Errors in html2canvas zu verhindern!
-    element.normalize();
-    
-    // Kurzen asynchronen Delay einbauen, damit der Browser den DOM/Layout-Tree nach der Ersetzung absolut stabilisiert
+    // Kurzen asynchronen Delay einbauen, damit der Browser den Klon-Baum absolut stabilisiert
     await new Promise(resolve => setTimeout(resolve, 150));
-    
-    // Synchronen Reflow (Layout-Berechnung) erzwingen, damit die Textknoten-Indizes im Layout-Tree 100% aktuell sind!
-    const forceReflow = element.offsetHeight;
     
     const opt = {
       margin: [10, 10, 10, 10],
@@ -471,14 +489,15 @@ async function handleOrderCompletion() {
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
-    // Erzeuge das PDF-Dokument als Binär-Blob
+    // Erzeuge das PDF-Dokument als Binär-Blob direkt aus dem isolierten Klon!
     let pdfBlob = null;
     try {
-      pdfBlob = await window.html2pdf().set(opt).from(element).output('blob');
+      pdfBlob = await window.html2pdf().set(opt).from(clone).output('blob');
     } finally {
-      // In jedem Fall (auch bei Fehlern) die Live-Inputs wiederherstellen und A4-Optimierung aufheben!
-      restoreInputs();
-      element.classList.remove('pdf-export-mode');
+      // In jedem Fall den temporären Holder rückstandslos bereinigen!
+      if (holder && holder.parentNode) {
+        holder.parentNode.removeChild(holder);
+      }
     }
     
     // 3. E-Mail Versand per Web Share API oder Fallback
