@@ -294,9 +294,6 @@ function prepareDomForPdf(container) {
   
   inputs.forEach(input => {
     const isTextarea = input.tagName.toLowerCase() === 'textarea';
-    const span = document.createElement(isTextarea ? 'div' : 'span');
-    span.className = 'pdf-temp-text';
-    
     let val = input.value || '';
     
     // Formatting specific types
@@ -313,48 +310,61 @@ function prepareDomForPdf(container) {
     }
     
     if (isTextarea) {
-      // Escape HTML and replace newlines with <br> to prevent html2canvas index size/range crashes on multiline text nodes
-      span.innerHTML = escapeHtml(val).split('\n').map(line => line.trim() ? line : '\u00A0').join('<br>');
+      // Nutzen Sie das bereits im HTML deklarierte und gestylte modalLeistungsberichtPrint div!
+      const printDiv = document.getElementById('modalLeistungsberichtPrint');
+      if (printDiv) {
+        // HTML-maskieren und Zeilenumbrüche in <br> umwandeln gegen html2canvas IndexSizeErrors
+        printDiv.innerHTML = escapeHtml(val).split('\n').map(line => line.trim() ? line : '\u00A0').join('<br>');
+        
+        // Verstecke die Original-Textarea und zeige das Print-Div an
+        const originalDisplay = input.style.display;
+        input.style.display = 'none';
+        
+        const originalPrintDisplay = printDiv.style.display;
+        printDiv.style.display = 'block';
+        printDiv.classList.add('print-show-force');
+        
+        restorations.push(() => {
+          input.style.display = originalDisplay;
+          printDiv.style.display = originalPrintDisplay;
+          printDiv.classList.remove('print-show-force');
+        });
+      }
     } else {
+      // Für einzeilige Eingabefelder erzeugen wir ein temporäres statisches span
+      const span = document.createElement('span');
+      span.className = 'pdf-temp-text';
       span.textContent = val;
-    }
-    
-    // Copy computed styling to ensure high-fidelity match
-    const computed = window.getComputedStyle(input);
-    span.style.fontSize = computed.fontSize || '11px';
-    span.style.fontWeight = computed.fontWeight || '700';
-    span.style.fontFamily = computed.fontFamily || 'inherit';
-    span.style.color = '#1a1a1a';
-    span.style.lineHeight = computed.lineHeight || 'normal';
-    span.style.padding = computed.padding || '0';
-    span.style.boxSizing = 'border-box';
-    span.style.display = isTextarea ? 'block' : 'inline-block';
-    
-    if (isTextarea) {
-      span.style.whiteSpace = 'pre-wrap';
-      span.style.wordBreak = 'break-word';
-      span.style.minHeight = '100px';
-      span.style.backgroundImage = 'linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0) 95%, #cbd5e1 95%, #cbd5e1 100%)';
-      span.style.backgroundSize = '100% 24px';
-    } else {
-      // Inputs in time-picker should keep a flexible layout
+      
+      // Berechnete Styles kopieren für perfekten Abgleich
+      const computed = window.getComputedStyle(input);
+      span.style.fontSize = computed.fontSize || '11px';
+      span.style.fontWeight = computed.fontWeight || '700';
+      span.style.fontFamily = computed.fontFamily || 'inherit';
+      span.style.color = '#1a1a1a';
+      span.style.lineHeight = computed.lineHeight || 'normal';
+      span.style.padding = computed.padding || '0';
+      span.style.boxSizing = 'border-box';
+      span.style.display = 'inline-block';
+      
+      // Spezifisches Layout für Time-Picker Inputs erhalten
       if (input.classList.contains('time-von') || input.classList.contains('time-bis')) {
         span.style.width = 'auto';
         span.style.minWidth = '35px';
       } else {
         span.style.width = '100%';
       }
+      
+      // Original verstecken und statisches span einfügen
+      const originalDisplay = input.style.display;
+      input.style.display = 'none';
+      input.parentNode.insertBefore(span, input);
+      
+      restorations.push(() => {
+        span.remove();
+        input.style.display = originalDisplay;
+      });
     }
-    
-    // Hide original element and insert temporary static span
-    const originalDisplay = input.style.display;
-    input.style.display = 'none';
-    input.parentNode.insertBefore(span, input);
-    
-    restorations.push(() => {
-      span.remove();
-      input.style.display = originalDisplay;
-    });
   });
   
   return () => {
