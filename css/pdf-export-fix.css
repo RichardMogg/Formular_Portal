@@ -1,0 +1,21 @@
+/*
+ * Korrekturen nur fuer den isolierten PDF-Export-Klon.
+ * Verhindert html2canvas-Range-Fehler auf mobilen Browsern bei CSS text-transform
+ * und blendet interaktive Bedienelemente aus dem Canvas-Export aus.
+ */
+.gebatech-sheet.pdf-export-mode .sheet-form-field label,
+.gebatech-sheet.pdf-export-mode .sheet-order-id-box label,
+.gebatech-sheet.pdf-export-mode .sheet-section-title,
+.gebatech-sheet.pdf-export-mode .sheet-table th,
+.gebatech-sheet.pdf-export-mode .signature-title,
+.gebatech-sheet.pdf-export-mode .field-label {
+  text-transform: none !important;
+}
+
+.gebatech-sheet.pdf-export-mode .no-print,
+.gebatech-sheet.pdf-export-mode th.no-print,
+.gebatech-sheet.pdf-export-mode td.no-print,
+.gebatech-sheet.pdf-export-mode .btn-action-small,
+.gebatech-sheet.pdf-export-mode .btn-clear-sig {
+  display: none !important;
+}
