@@ -110,19 +110,3 @@ async function isFormAvailable(form) {
     return false;
   }
 }
-[
-
-  {
-    "url": "forms/GBT_Störungsbericht/index.html",
-    "id": "GBT Störungsbericht",
-    "title": "GBT Störungsbericht",
-    "category": "Berichte",
-    "description": "",
-    "version": "1.0",
-    "status": "active",
-    "tags": ["GBT Störungsbericht", "Berichte"],
-    "favorite": false,
-    "acceptsOrderContext": true,
-    "prefillProfile": "standard"
-  }
-]
