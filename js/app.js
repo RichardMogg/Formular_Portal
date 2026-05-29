@@ -10,6 +10,7 @@ import {
   addTimeRow,
   triggerDraftAutoSave,
   resetPortalToInitialState,
+  clearAllModalFormFields,
   techSigPad,
   custSigPad
 } from './ui.js';
@@ -121,6 +122,14 @@ function bindEvents() {
   // Drucken-Button
   elements.btnPrintLieferschein.addEventListener('click', () => {
     window.print();
+  });
+
+  // Leeren-Button
+  elements.btnResetLieferschein.addEventListener('click', () => {
+    if (confirm('Möchten Sie alle eingetragenen Lieferschein-Daten und Unterschriften wirklich unwiderruflich löschen?')) {
+      clearAllModalFormFields();
+      triggerDraftAutoSave(); // Sofort leeren Entwurf speichern
+    }
   });
 
   // Haupt-Button "Auftrag abschließen" (PDF-Erstellung + Mail + Shredder + Reset)
@@ -297,7 +306,12 @@ function prepareDomForPdf(container) {
       val = isTextarea ? 'Keine Arbeiten dokumentiert.' : '\u00A0';
     }
     
-    span.textContent = val;
+    if (isTextarea) {
+      // Escape HTML and replace newlines with <br> to prevent html2canvas index size/range crashes on multiline text nodes
+      span.innerHTML = escapeHtml(val).split('\n').map(line => line.trim() ? line : '\u00A0').join('<br>');
+    } else {
+      span.textContent = val;
+    }
     
     // Copy computed styling to ensure high-fidelity match
     const computed = window.getComputedStyle(input);
@@ -417,6 +431,9 @@ async function handleOrderCompletion() {
     
     // Ersetze alle Inputs und Textareas durch statische Textspans, um html2canvas-Crashes zu umgehen
     const restoreInputs = prepareDomForPdf(element);
+    
+    // Normalisiere den DOM-Tree, um adjacent text nodes zu bereinigen und IndexSizeErrors/setEnd Errors in html2canvas zu verhindern!
+    element.normalize();
     
     const opt = {
       margin: [10, 10, 10, 10],

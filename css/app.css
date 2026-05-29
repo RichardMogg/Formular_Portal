@@ -550,6 +550,16 @@ main {
   background: #fef3c7;
 }
 
+.btn-reset {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.btn-reset:hover {
+  background: #fee2e2;
+}
+
 .btn-close {
   background: #f8fafc;
   color: #64748b;

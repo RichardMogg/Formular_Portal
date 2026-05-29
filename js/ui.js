@@ -69,6 +69,7 @@ export const elements = {
   btnClearCustSig: document.getElementById('btnClearCustSig'),
   btnCompleteOrder: document.getElementById('btnCompleteOrder'),
   btnPrintLieferschein: document.getElementById('btnPrintLieferschein'),
+  btnResetLieferschein: document.getElementById('btnResetLieferschein'),
   
   // GPS & Verifizierung
   modalGpsCoords: document.getElementById('modalGpsCoords'),
@@ -274,7 +275,7 @@ function prefillModalFromActiveOrder() {
   if (custSigPad) custSigPad.clear();
 }
 
-function clearAllModalFormFields() {
+export function clearAllModalFormFields() {
   elements.modalOrderId.value = '';
   elements.modalClientName.value = '';
   elements.modalClientAddress.value = '';
