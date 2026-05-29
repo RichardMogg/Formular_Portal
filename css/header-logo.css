@@ -1,0 +1,13 @@
+.portal-header-logo {
+  display: block;
+  width: min(220px, 70vw);
+  height: auto;
+  margin: 0 auto 10px;
+}
+
+@media (min-width: 720px) {
+  .portal-header-logo {
+    width: 260px;
+    margin-bottom: 12px;
+  }
+}
