@@ -1,5 +1,5 @@
-import { elements, techSigPad, custSigPad, triggerDraftAutoSave } from './ui.js?v=1.1.1';
-import { SignaturePad } from './signature-pad.js?v=1.1.1';
+import { elements, techSigPad, custSigPad, triggerDraftAutoSave } from './ui.js?v=1.1.0';
+import { SignaturePad } from './signature-pad.js?v=1.1.0';
 
 let overlay = null;
 let overlayCanvas = null;
