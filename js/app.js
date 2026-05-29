@@ -19,6 +19,7 @@ import { parsePdfOrder } from './pdf-handler.js?v=1.1.0';
 // Mail-Konfigurations-Cache
 let cachedMailAddress = 'adl@gebatech.at'; // Standard Fallback
 let cachedMailBody = 'Auftrag abgeschlossen.\nAnbei der Arbeitsnachweis/Lieferschein im Anhang.';
+let cachedPdfLogoDataUrl = null;
 
 async function init() {
   bindEvents();
@@ -289,6 +290,76 @@ function getGeolocation() {
   });
 }
 
+function replacePdfCloneLogo(clone) {
+  const logoImg = clone.querySelector('.sheet-logo-img');
+  if (!logoImg) return;
+
+  const dataUrl = createPdfLogoDataUrl();
+  if (!dataUrl) return;
+
+  logoImg.src = dataUrl;
+  logoImg.removeAttribute('srcset');
+  logoImg.alt = 'GEBATECH Logo';
+  logoImg.style.width = '250px';
+  logoImg.style.height = 'auto';
+  logoImg.style.display = 'block';
+  logoImg.style.objectFit = 'contain';
+}
+
+function createPdfLogoDataUrl() {
+  if (cachedPdfLogoDataUrl) return cachedPdfLogoDataUrl;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 1040;
+  canvas.height = 360;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  ctx.save();
+  ctx.scale(2, 2);
+  ctx.clearRect(0, 0, 520, 180);
+
+  try {
+    ctx.save();
+    ctx.translate(20, 12);
+    ctx.scale(0.85, 0.85);
+    ctx.translate(-82.111, -8.672);
+
+    ctx.fillStyle = '#1D1D1B';
+    ctx.fill(new Path2D('M143.14,48.858v63.52l-0.312,0.002 c-17.541,0-31.761-14.22-31.761-31.761c0-17.542,14.22-31.762,31.761-31.762L143.14,48.858z M143.14,8.672v34.757l-0.312,0.004 c-5.72,0-10.428-4.337-11.015-9.901c-5.202,1.213-10.082,3.265-14.489,6.007c3.518,4.35,3.255,10.742-0.79,14.786 c-4.043,4.044-10.437,4.308-14.786,0.79c-2.745,4.413-4.8,9.301-6.011,14.513c5.545,0.604,9.861,5.303,9.861,11.01 c0,5.703-4.312,10.4-9.854,11.01c1.215,5.205,3.27,10.087,6.015,14.495c4.349-3.471,10.704-3.192,14.73,0.835 c4.025,4.024,4.305,10.376,0.839,14.725c4.406,2.741,9.285,4.792,14.486,6.004c0.635-5.514,5.318-9.794,11.003-9.795l0.322,0.005 v21.971l-61.028-0.003V44.081L143.14,8.672z'));
+
+    ctx.fillStyle = '#D3BF00';
+    ctx.fill(new Path2D('M153.82,127.71c-0.621-5.411-5.141-9.637-10.681-9.795v-5.537c17.397-0.167,31.449-14.321,31.449-31.759 c0-17.438-14.052-31.594-31.449-31.761v-5.43c5.578-0.154,10.127-4.435,10.702-9.897c5.223,1.217,10.119,3.28,14.54,6.037 c-3.515,4.35-3.25,10.74,0.793,14.783c4.037,4.037,10.413,4.307,14.763,0.81c2.74,4.415,4.788,9.305,5.994,14.517 c-5.538,0.612-9.845,5.308-9.845,11.009c0,5.69,4.29,10.379,9.813,11.007c-1.218,5.196-3.274,10.07-6.018,14.472 c-4.35-3.454-10.691-3.17-14.713,0.851c-4.016,4.016-4.303,10.35-0.861,14.697C163.902,124.451,159.022,126.5,153.82,127.71z'));
+    ctx.restore();
+  } catch (_) {
+    ctx.fillStyle = '#1D1D1B';
+    ctx.fillRect(58, 56, 44, 58);
+    ctx.fillStyle = '#D3BF00';
+    ctx.beginPath();
+    ctx.arc(124, 88, 34, -Math.PI / 2, Math.PI / 2);
+    ctx.lineTo(124, 122);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#111111';
+  ctx.font = '900 54px Arial, Helvetica, sans-serif';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText('GEBA', 160, 88);
+  const gebaWidth = ctx.measureText('GEBA').width;
+  ctx.fillStyle = '#c4bd18';
+  ctx.fillText('TECH', 160 + gebaWidth, 88);
+
+  ctx.fillStyle = '#111111';
+  ctx.font = '700 23px Arial, Helvetica, sans-serif';
+  ctx.fillText('GEBÄUDE | ANLAGENTECHNIK', 164, 122);
+
+  ctx.restore();
+
+  cachedPdfLogoDataUrl = canvas.toDataURL('image/png');
+  return cachedPdfLogoDataUrl;
+}
+
 // ========================================================
 // OFFSCREEN CLONING & DOM PREPARATION FOR EXPORT
 // ========================================================
@@ -298,6 +369,7 @@ function createOffscreenPdfClone(element) {
   
   // A4-Optimierungsklasse hinzufügen
   clone.classList.add('pdf-export-mode');
+  replacePdfCloneLogo(clone);
   
   // 2. Eingabefelder (Inputs & Textareas) im Klon durch statische Texte ersetzen
   const liveInputs = element.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="image"]), textarea');
@@ -486,7 +558,7 @@ async function handleOrderCompletion() {
     document.body.appendChild(holder);
     
     // Kurzen asynchronen Delay einbauen, damit der Browser den Klon-Baum absolut stabilisiert
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     // Erzeuge das PDF-Dokument als Binär-Blob direkt aus dem isolierten Klon unter Verwendung der stabilen Bibliotheken!
     let pdfBlob = null;
