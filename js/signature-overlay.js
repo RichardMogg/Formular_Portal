@@ -8,11 +8,89 @@ let activeTarget = null;
 let activeSmallCanvas = null;
 let activeSmallPad = null;
 let originalBodyOverflow = '';
+let reasonNotPresent = null;
+let reasonRefused = null;
 
 function initSignatureOverlay() {
   buildOverlay();
+  buildCustomerReasonOptions();
   bindPreview(elements.technicianSigCanvas, 'tech');
   bindPreview(elements.customerSigCanvas, 'customer');
+}
+
+function buildCustomerReasonOptions() {
+  const footerCheckboxes = document.querySelector('.sheet-footer-checkboxes');
+  if (!footerCheckboxes || document.getElementById('customerNotPresent')) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'customer-signature-reason-options';
+  wrapper.innerHTML = `
+    <label class="sheet-checkbox-label">
+      <input type="checkbox" id="customerNotPresent" class="gear-checkbox">
+      <span class="gear-checkbox-custom"></span> Kunde nicht anwesend
+    </label>
+    <label class="sheet-checkbox-label">
+      <input type="checkbox" id="customerSignatureRefused" class="gear-checkbox">
+      <span class="gear-checkbox-custom"></span> Unterschrift wird verweigert
+    </label>
+  `;
+
+  footerCheckboxes.insertAdjacentElement('afterend', wrapper);
+  reasonNotPresent = wrapper.querySelector('#customerNotPresent');
+  reasonRefused = wrapper.querySelector('#customerSignatureRefused');
+
+  reasonNotPresent.addEventListener('change', () => handleReasonChange(reasonNotPresent));
+  reasonRefused.addEventListener('change', () => handleReasonChange(reasonRefused));
+}
+
+function handleReasonChange(changedInput) {
+  if (!reasonNotPresent || !reasonRefused) return;
+
+  if (changedInput.checked) {
+    if (changedInput === reasonNotPresent) {
+      reasonRefused.checked = false;
+      writeCustomerReasonToCanvas('Kunde nicht anwesend');
+    } else {
+      reasonNotPresent.checked = false;
+      writeCustomerReasonToCanvas('Unterschrift wird verweigert');
+    }
+  } else if (!reasonNotPresent.checked && !reasonRefused.checked) {
+    clearCustomerReasonCanvas();
+  }
+
+  triggerDraftAutoSave();
+}
+
+function writeCustomerReasonToCanvas(text) {
+  const canvas = elements.customerSigCanvas;
+  if (!canvas) return;
+
+  if (custSigPad && typeof custSigPad.resizeCanvas === 'function') {
+    custSigPad.resizeCanvas();
+  }
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#1e3a8a';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `900 ${Math.max(18, Math.round(canvas.height * 0.16))}px Arial, sans-serif`;
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+  ctx.restore();
+
+  if (custSigPad) {
+    custSigPad.pointsCount = 1;
+  }
+}
+
+function clearCustomerReasonCanvas() {
+  if (custSigPad) {
+    custSigPad.clear();
+  }
 }
 
 function buildOverlay() {
@@ -86,6 +164,10 @@ function bindPreview(canvas, target) {
 }
 
 function openOverlay(target) {
+  if (target === 'customer' && isCustomerReasonActive()) {
+    return;
+  }
+
   activeTarget = target;
   activeSmallCanvas = target === 'tech' ? elements.technicianSigCanvas : elements.customerSigCanvas;
   activeSmallPad = target === 'tech' ? techSigPad : custSigPad;
@@ -104,6 +186,10 @@ function openOverlay(target) {
       overlayPad.pointsCount = 1;
     }
   }, 80);
+}
+
+function isCustomerReasonActive() {
+  return Boolean((reasonNotPresent && reasonNotPresent.checked) || (reasonRefused && reasonRefused.checked));
 }
 
 function setupOverlayPad() {
@@ -161,6 +247,10 @@ function acceptSignature() {
     return;
   }
 
+  if (activeTarget === 'customer') {
+    clearCustomerReasonSelection();
+  }
+
   drawOverlayToSmallCanvas();
 
   if (activeSmallPad) {
@@ -169,6 +259,11 @@ function acceptSignature() {
 
   triggerDraftAutoSave();
   closeOverlay();
+}
+
+function clearCustomerReasonSelection() {
+  if (reasonNotPresent) reasonNotPresent.checked = false;
+  if (reasonRefused) reasonRefused.checked = false;
 }
 
 function drawOverlayToSmallCanvas() {
