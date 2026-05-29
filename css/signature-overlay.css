@@ -2,6 +2,10 @@
    Mobile Signatur-Overlay fuer den Portal-Lieferschein
    ======================================================== */
 
+#btnPrintLieferschein {
+  display: none !important;
+}
+
 .signature-canvas-container {
   cursor: pointer;
 }
@@ -13,6 +17,17 @@
 
 .signature-canvas-element {
   pointer-events: none;
+}
+
+.customer-signature-reason-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 8px;
+}
+
+.customer-signature-reason-options .sheet-checkbox-label {
+  margin: 0;
 }
 
 .signature-fullscreen-overlay {
