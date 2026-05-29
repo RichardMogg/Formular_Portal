@@ -1,15 +1,66 @@
 [
-  {
-    "id": "srk-dx-kuehler-outdoor",
-    "title": "Inbetriebnahmeprotokoll DX Kühler Outdoor",
-    "category": "Inbetriebnahme",
-    "description": "Browserbasierte Web-App zur Erstellung von Inbetriebnahmeprotokollen fuer DX Kuehler Outdoor.",
-    "url": "forms/SRK/index.html",
-    "version": "1.0",
-    "status": "draft",
-    "tags": ["SRK", "DX", "Kuehler", "Inbetriebnahme"],
-    "favorite": false,
-    "acceptsOrderContext": false,
-    "prefillProfile": ""
-  }
+    {
+        "url":  "forms/Antigrav Test Formular/index.html",
+        "id":  "antigrav test formular",
+        "tags":  [
+                     "Antigrav Test Formular",
+                     "Inbetriebnahme"
+                 ],
+        "version":  "V1.0",
+        "category":  "Inbetriebnahme",
+        "description":  "Automatisiertes Vorbefüllungs-Testformular",
+        "favorite":  false,
+        "acceptsOrderContext":  true,
+        "prefillProfile":  "standard",
+        "status":  "draft",
+        "title":  "1. Kopfdaten"
+    },
+    {
+        "url":  "forms/formular-webapp (15)/index.html",
+        "id":  "formular-webapp (15)",
+        "tags":  [
+                     "formular-webapp (15)",
+                     "Inbetriebnahme"
+                 ],
+        "version":  "V1.0",
+        "category":  "Inbetriebnahme",
+        "description":  "Untertitel",
+        "favorite":  false,
+        "acceptsOrderContext":  true,
+        "prefillProfile":  "standard",
+        "status":  "draft",
+        "title":  "Formular-Titel"
+    },
+    {
+        "url":  "forms/Lieferschein_Test/index.html",
+        "id":  "lieferschein_test",
+        "tags":  [
+                     "Lieferschein_Test",
+                     "Inbetriebnahme"
+                 ],
+        "version":  "0.1.0",
+        "category":  "Inbetriebnahme",
+        "description":  "Kundendienstauftrag",
+        "favorite":  false,
+        "acceptsOrderContext":  true,
+        "prefillProfile":  "standard",
+        "status":  "draft",
+        "title":  "Arbeitsnachweis / Lieferschein"
+    },
+    {
+        "url":  "forms/SRK/index.html",
+        "id":  "srk",
+        "tags":  [
+                     "SRK",
+                     "Inbetriebnahme"
+                 ],
+        "version":  "1.0",
+        "category":  "Inbetriebnahme",
+        "description":  "Protokoll-Formular für Serviceeinsätze.",
+        "favorite":  false,
+        "acceptsOrderContext":  true,
+        "prefillProfile":  "standard",
+        "status":  "draft",
+        "title":  "SRK"
+    }
 ]

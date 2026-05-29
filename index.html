@@ -15,9 +15,55 @@
   </header>
 
   <main>
-    <section class="panel order-placeholder" aria-labelledby="order-title">
-      <h2 id="order-title">Auftrag laden</h2>
-      <p>PDF-Auftrag-Import ist vorbereitet, aber noch nicht umgesetzt. Auftragsdaten werden nicht gespeichert.</p>
+    <section class="panel order-section" aria-labelledby="order-title">
+      <h2 id="order-title">Auftragsdaten laden</h2>
+      
+      <!-- Upload-Bereich -->
+      <div class="upload-zone" data-upload-zone>
+        <input type="file" id="pdf-file-input" accept="application/pdf" class="file-input">
+        <div class="upload-content">
+          <span class="upload-icon">📄</span>
+          <span class="upload-text">PDF-Auftrag per E-Mail erhalten? Hierher ziehen oder anklicken</span>
+        </div>
+      </div>
+
+      <!-- Detail-Anzeige des geladenen Auftrags (initial ausgeblendet) -->
+      <div class="active-order-details hidden" data-active-order>
+        <div class="order-header">
+          <div class="order-title-wrapper">
+            <span class="order-badge">Geladen</span>
+            <h3>Auftrag: <span data-order-id></span></h3>
+          </div>
+          <button class="btn-discard" data-discard-order>Entfernen</button>
+        </div>
+        <div class="order-grid">
+          <div class="order-field">
+            <span class="field-label">Auftraggeber</span>
+            <span class="field-value" data-order-client></span>
+          </div>
+          <div class="order-field">
+            <span class="field-label">Baustelle / Kundenadresse</span>
+            <span class="field-value" data-order-address></span>
+          </div>
+          <div class="order-field">
+            <span class="field-label">Rechnungsadresse</span>
+            <span class="field-value" data-order-billing></span>
+          </div>
+          <div class="order-field">
+            <span class="field-label">Auftragsgrundlage</span>
+            <span class="field-value" data-order-basis></span>
+          </div>
+          <div class="order-field">
+            <span class="field-label">Zusatzinfo (Polier)</span>
+            <span class="field-value" data-order-additional></span>
+          </div>
+          <div class="order-field">
+            <span class="field-label">Termin</span>
+            <span class="field-value"><span data-order-termin></span> (vom <span data-order-date></span>)</span>
+          </div>
+        </div>
+        <p class="order-info-note">Die Daten wurden lokal eingelesen und stehen jetzt für Formulare bereit.</p>
+      </div>
     </section>
 
     <section class="panel" aria-labelledby="search-title">
@@ -45,6 +91,6 @@
     </section>
   </main>
 
-  <script src="js/app.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

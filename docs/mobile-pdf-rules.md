@@ -17,11 +17,9 @@ Regeln:
 - PDF-Auftrag-Upload mobil bedienbar
 - erkannte Auftragsdaten mobil pruefbar
 
-## Baukasten-Optik
+## Visuelle Ausrichtung
 
-Der Formular_Baukasten darf als visuelle Referenz dienen.
-
-Keine ungepruefte Uebernahme von Baukasten-Code, Baukasten-CSS oder Baukasten-JavaScript.
+Das Design orientiert sich an einer klaren, modernen Web-Optik. Keine ungeprüfte Übernahme externer Skripte, Designs oder Styles.
 
 ## Auftrag-PDF-Import
 

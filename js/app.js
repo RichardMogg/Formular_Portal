@@ -1,22 +1,18 @@
-const state = {
-  forms: [],
-  query: '',
-  category: 'all'
-};
-
-const elements = {
-  grid: document.querySelector('[data-form-grid]'),
-  search: document.querySelector('[data-search]'),
-  category: document.querySelector('[data-category-filter]'),
-  status: document.querySelector('[data-status]')
-};
+import { state, loadOrderContext, saveOrderContext, clearOrderContext } from './state.js';
+import { elements, renderCategoryFilter, renderForms, renderOrderContext, escapeHtml } from './ui.js';
+import { parsePdfOrder } from './pdf-handler.js';
 
 async function init() {
   bindEvents();
   await loadForms();
+  
+  // Geladenen Auftrag aus sessionStorage wiederherstellen (falls vorhanden)
+  loadOrderContext();
+  renderOrderContext();
 }
 
 function bindEvents() {
+  // Filter- und Suche-Events
   elements.search.addEventListener('input', () => {
     state.query = elements.search.value.trim().toLowerCase();
     renderForms();
@@ -26,6 +22,68 @@ function bindEvents() {
     state.category = elements.category.value;
     renderForms();
   });
+
+  // PDF-Upload per Klick/Dateiauswahl
+  elements.fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      await handlePdfUpload(file);
+    }
+  });
+
+  // PDF-Upload per Drag & Drop
+  const zone = elements.uploadZone;
+  
+  zone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    zone.classList.add('dragover');
+  });
+  
+  zone.addEventListener('dragleave', () => {
+    zone.classList.remove('dragover');
+  });
+  
+  zone.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        await handlePdfUpload(file);
+      } else {
+        alert('Bitte laden Sie eine gültige PDF-Datei hoch.');
+      }
+    }
+  });
+
+  // Auftrag entfernen (Verwerfen)
+  elements.btnDiscard.addEventListener('click', () => {
+    clearOrderContext();
+    renderOrderContext();
+  });
+}
+
+async function handlePdfUpload(file) {
+  const textEl = elements.uploadZone.querySelector('.upload-text');
+  const originalText = textEl ? textEl.textContent : 'PDF-Auftrag per E-Mail erhalten? Hierher ziehen oder anklicken';
+  
+  try {
+    if (textEl) {
+      textEl.textContent = 'Analysiere PDF-Auftrag...';
+    }
+    
+    const parsedData = await parsePdfOrder(file);
+    saveOrderContext(parsedData);
+    renderOrderContext();
+  } catch (error) {
+    console.error('Fehler beim PDF-Import:', error);
+    alert('Fehler beim Einlesen der PDF: ' + error.message);
+  } finally {
+    if (textEl) {
+      textEl.textContent = originalText;
+    }
+  }
 }
 
 async function loadForms() {
@@ -48,81 +106,6 @@ async function loadForms() {
   } catch (error) {
     elements.grid.innerHTML = `<div class="error-state">${escapeHtml(error.message)}</div>`;
   }
-}
-
-function renderCategoryFilter() {
-  const categories = Array.from(new Set(state.forms.map((form) => form.category).filter(Boolean))).sort();
-
-  elements.category.innerHTML = '<option value="all">Alle Kategorien</option>';
-
-  categories.forEach((category) => {
-    const option = document.createElement('option');
-    option.value = category;
-    option.textContent = category;
-    elements.category.appendChild(option);
-  });
-}
-
-function renderForms() {
-  const visibleForms = state.forms.filter(matchesFilters);
-
-  elements.status.textContent = `${visibleForms.length} von ${state.forms.length} Formularen angezeigt`;
-
-  if (visibleForms.length === 0) {
-    elements.grid.innerHTML = '<div class="empty-state">Keine passenden Formulare gefunden.</div>';
-    return;
-  }
-
-  elements.grid.innerHTML = visibleForms.map(renderFormCard).join('');
-}
-
-function matchesFilters(form) {
-  const haystack = [
-    form.title,
-    form.category,
-    form.description,
-    form.version,
-    form.status,
-    ...(Array.isArray(form.tags) ? form.tags : [])
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
-
-  const matchesQuery = !state.query || haystack.includes(state.query);
-  const matchesCategory = state.category === 'all' || form.category === state.category;
-
-  return matchesQuery && matchesCategory;
-}
-
-function renderFormCard(form) {
-  const tags = Array.isArray(form.tags) ? form.tags : [];
-  const badges = [form.category, form.status, form.version ? `v${form.version}` : '', ...tags]
-    .filter(Boolean)
-    .map((item) => `<span class="badge">${escapeHtml(item)}</span>`)
-    .join('');
-
-  return `
-    <article class="form-card">
-      <div class="badges">${badges}</div>
-      <h3>${escapeHtml(form.title || 'Unbenanntes Formular')}</h3>
-      <p>${escapeHtml(form.description || 'Keine Beschreibung vorhanden.')}</p>
-      <a class="open-link" href="${escapeAttribute(form.url || '#')}" target="_blank" rel="noopener noreferrer">Formular öffnen</a>
-    </article>
-  `;
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-function escapeAttribute(value) {
-  return escapeHtml(value).replaceAll('`', '&#096;');
 }
 
 init();

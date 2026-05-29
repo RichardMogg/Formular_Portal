@@ -26,57 +26,19 @@ Alle aktiven Änderungen, Planungen und Umsetzungen dieses Projekts beziehen sic
 
 ---
 
-## 2. Referenzrepository Formular_Baukasten
-
-Das Repository:
-
-```text
-RichardMogg/Formular_Baukasten
-```
-
-darf in diesem Projekt ausschließlich als Referenz verwendet werden.
-
-Der Baukasten dient nur dazu, Aufbau und Exportstruktur fertiger Formular-Webapps zu verstehen.
-
-Nicht erlaubt ohne ausdrückliche separate Freigabe:
-
-- Dateien im Baukasten-Repository ändern
-- Commits im Baukasten-Repository erzeugen
-- Branches im Baukasten-Repository anlegen
-- Pull Requests im Baukasten-Repository erstellen
-- Issues im Baukasten-Repository erstellen
-- Baukasten-Code ungeprüft in das Portal übernehmen
-- Portal-Logik in den Baukasten einbauen
-
-Der Baukasten darf nur verwendet werden, um zu verstehen:
-
-- wie exportierte Formular-Webapps grundsätzlich aufgebaut sind,
-- welche Dateistruktur exportierte Formulare haben,
-- welche Runtime-Dateien typischerweise vorhanden sind,
-- wie Formulare im Portal abgelegt werden können,
-- welche Metadaten für `forms.json` sinnvoll sind.
-
-Ausschlaggebend für dieses Projekt ist das Portal-Repository.
-
----
-
-## 3. Projektziel
+## 2. Projektziel
 
 Das Projekt ist ein statisches Formular-Portal.
 
 Das Portal soll mehrere fertige Formular-Webapps zentral sammeln, strukturieren und zugänglich machen.
 
-Die einzelnen Formular-Webapps werden mit dem separaten Projekt `Formular_Baukasten` erzeugt und anschließend in diesem Portal-Repository in eigenen Unterordnern abgelegt.
+Die einzelnen Formular-Webapps liegen in diesem Portal-Repository in eigenen Unterordnern unter `forms/`.
 
-Das Portal ist nicht der Baukasten.
-
-Der Baukasten erstellt einzelne Formular-Webapps.
-
-Das Portal sammelt und verlinkt diese fertigen Formular-Webapps.
+Das Portal sammelt und verlinkt diese fertigen Formular-Webapps und ermöglicht den strukturierten Kopfdaten-Import.
 
 ---
 
-## 4. Grundstruktur des Portal-Repositories
+## 3. Grundstruktur des Portal-Repositories
 
 Empfohlene Repository-Struktur:
 
@@ -110,15 +72,7 @@ Formular_Portal/
 
 ---
 
-## 5. Rollen der Projektbestandteile
-
-### Formular_Baukasten
-
-Der Formular_Baukasten ist ein separates Projekt.
-
-Er erzeugt vollständige Formular-Webapps als exportierbare Runtime-Strukturen.
-
-Der Baukasten ist nicht Bestandteil dieses Portals.
+## 4. Rollen der Projektbestandteile
 
 ### Exportierte Formular-Webapp
 
@@ -143,11 +97,11 @@ Das Portal ist die zentrale Startseite.
 
 Es listet verfügbare Formulare auf und ermöglicht das Öffnen der jeweiligen Formular-Webapps.
 
-Das Portal verwaltet Metadaten, Kategorien, Suche und Filter.
+Es verwaltet Metadaten, Kategorien, Suche, Filter und den PDF-Kopfdatenimport zur automatischen Vorbefüllung.
 
 ---
 
-## 6. Zentrale Manifest-Datei
+## 5. Zentrale Manifest-Datei
 
 Die Datei `forms.json` ist die zentrale Liste aller im Portal verfügbaren Formulare.
 
@@ -175,7 +129,7 @@ Beispiel:
 
 ---
 
-## 7. Pflichtfelder in forms.json
+## 6. Pflichtfelder in forms.json
 
 Empfohlene Pflichtfelder je Formular:
 
@@ -210,7 +164,7 @@ Empfohlene optionale Felder:
 
 ---
 
-## 8. Statuswerte
+## 7. Statuswerte
 
 Empfohlene Statuswerte:
 
@@ -232,7 +186,7 @@ Bedeutung:
 
 ---
 
-## 9. Kategorien
+## 8. Kategorien
 
 Kategorien sollen frei definierbar bleiben.
 
@@ -249,20 +203,18 @@ Störung
 Dokumentation
 ```
 
-Kategorien sollen möglichst aus `forms.json` gelesen werden.
-
-Keine Kategorien hart im Code erzwingen, wenn sie aus `forms.json` ableitbar sind.
+Kategorien sollen aus `forms.json` gelesen werden.
 
 ---
 
-## 10. Statische Ausführung
+## 9. Statische Ausführung
 
 Das Portal soll statisch funktionieren.
 
 Grundsätze:
 
 - kein Backend erforderlich
-- keine Datenbank erforderlich
+- kein Server-Datenbanksystem erforderlich
 - keine Anmeldung erforderlich, solange nicht ausdrücklich entschieden
 - keine Build-Pipeline erforderlich, solange nicht ausdrücklich entschieden
 - lauffähig über GitHub Pages
@@ -270,7 +222,7 @@ Grundsätze:
 
 ---
 
-## 11. GitHub-Pages-Kompatibilität
+## 10. GitHub-Pages-Kompatibilität
 
 Alle Pfade müssen GitHub-Pages-kompatibel sein.
 
@@ -297,17 +249,15 @@ C:\Users\...\formularname\index.html
 
 ---
 
-## 12. Trennung Portal / Formular
+## 11. Trennung Portal / Formular
 
 Das Portal darf die einzelnen Formular-Webapps nicht unnötig verändern.
 
 Nicht erlaubt ohne ausdrückliche Freigabe:
 
 - Formularlogik aus Formular-Webapps ins Portal kopieren
-- Portal-Logik in einzelne Formular-Webapps einbauen
-- bestehende Formularordner umbauen
-- Exportstruktur aus dem Baukasten verändern
-- Formular-Webapps abhängig vom Portal machen
+- Portal-Logik fest in einzelne Formular-Webapps einbauen (nur lose Kopplung über Prefill)
+- bestehende Formularordner manuell umbauen, so dass sie an Eigenständigkeit verlieren
 
 Ziel:
 
@@ -318,37 +268,7 @@ Portal verlinkt Formular-Webapp.
 
 ---
 
-## 13. Mögliche Portal-Funktionen
-
-Erste Ausbaustufe:
-
-- Formular-Kacheln
-- Formularliste
-- Formular öffnen
-- Suche
-- Kategorien
-- Statusanzeige
-- Versionsanzeige
-- Beschreibung
-- Tags
-- Favoriten vorbereitet
-
-Spätere Ausbaustufen:
-
-- Favoritenbereich
-- Archiv
-- Sortierung
-- Gruppierung nach Kunde, Projekt, Land oder Abteilung
-- Länder-/Niederlassungsstruktur
-- Benutzerrollen
-- Rechtekonzept
-- zentrale Formularupdates
-- Formular-Importassistent
-- automatische Erkennung neuer Formularordner
-
----
-
-## 14. Such- und Filterlogik
+## 12. Such- und Filterlogik
 
 Suche und Filter sollen aus `forms.json` arbeiten.
 
@@ -365,31 +285,20 @@ Durchsuchbare Felder:
 - country
 - department
 
-Die Suche soll keine Formular-Webapps öffnen oder durchsuchen müssen.
-
 ---
 
-## 15. Einbindung der Formulare
+## 13. Einbindung der Formulare
 
 Standardverhalten:
 
 - Portal zeigt Formular-Karte
 - Klick öffnet `url`
 - Formular-Webapp läuft eigenständig
-
-Optional später:
-
-- Öffnen in neuem Tab
-- Detailseite je Formular
-- Vorschau im iframe
-- Favoritenbereich
-- zuletzt geöffnet
-
-Iframe-Einbindung nur nach bewusster Entscheidung, da sie Layout- und Browserprobleme verursachen kann.
+- Optionale Prefill-Parameter werden via URL-Hash / Query übergeben
 
 ---
 
-## 16. Arbeitsmodus
+## 14. Arbeitsmodus
 
 Vor jeder Änderung prüfen:
 
@@ -401,14 +310,10 @@ Vor jeder Änderung prüfen:
 6. Bleibt das Portal GitHub-Pages-tauglich?
 7. Sind die Pfade korrekt?
 8. Gibt es Risiken für bestehende Formularordner?
-9. Wird versehentlich das Baukasten-Repository betroffen?
-10. Wird Baukasten-Code ungeprüft übernommen?
-
-Bei Unklarheit gezielte Rückfragen stellen.
 
 ---
 
-## 17. Antwortstil
+## 15. Antwortstil
 
 - Antworten auf Deutsch
 - sachlich und direkt
@@ -422,7 +327,7 @@ Bei Unklarheit gezielte Rückfragen stellen.
 
 ---
 
-## 18. Standardablauf bei Änderungswünschen
+## 16. Standardablauf bei Änderungswünschen
 
 1. Anforderung kurz zusammenfassen.
 2. Betroffene Dateien oder Bereiche nennen.
@@ -433,7 +338,7 @@ Bei Unklarheit gezielte Rückfragen stellen.
 
 ---
 
-## 19. Repository-Schreibschutz
+## 17. Repository-Schreibschutz
 
 Direkte Änderungen am Repository nur nach ausdrücklicher Freigabe.
 
@@ -443,13 +348,9 @@ Keine kompletten Datei-Ersetzungen ohne Freigabe.
 
 Keine Assets, ZIP-Dateien oder Binärdateien schreiben, außer ausdrücklich verlangt.
 
-Keine Änderungen an eingebetteten Formular-Webapps, außer ausdrücklich beauftragt.
-
-Keine Änderungen im Repository `RichardMogg/Formular_Baukasten`.
-
 ---
 
-## 20. Kritische Dateien
+## 18. Kritische Dateien
 
 Besonders kritisch:
 
@@ -463,11 +364,9 @@ forms/*/js/*
 forms/*/css/*
 ```
 
-Änderungen an `forms/*` betreffen einzelne exportierte Formular-Webapps und dürfen nicht automatisch erfolgen.
-
 ---
 
-## 21. Priorität bei Widersprüchen
+## 19. Priorität bei Widersprüchen
 
 Wenn Dokumentationsdateien vorhanden sind, gilt folgende Priorität:
 
@@ -478,13 +377,10 @@ Wenn Dokumentationsdateien vorhanden sind, gilt folgende Priorität:
 5. `docs/working-rules.md`
 6. `CURRENT_STATUS.md`
 7. `TODO.md`
-8. aktuelle Projektchats
-9. alte Chatverläufe nur als Archiv
-10. `RichardMogg/Formular_Baukasten` nur als Referenz
 
 ---
 
-## 22. Dokumentationsstruktur
+## 20. Dokumentationsstruktur
 
 Empfohlene Dateien:
 
@@ -506,57 +402,16 @@ Enthält:
 - Projektziel
 - Architektur
 - Grundstruktur
-- Abgrenzung zum Baukasten
 - Portal-Konzept
 - Prioritäten
-
-### CURRENT_STATUS.md
-
-Aktueller Entwicklungsstand.
-
-Enthält:
-
-- was funktioniert
-- was ist teilweise umgesetzt
-- was ist offen
-- bekannte Risiken
 
 ### DECISIONS.md
 
 Getroffene Architekturentscheidungen.
 
-### TODO.md
-
-Konkrete offene Aufgaben.
-
-### docs/analysis/
-
-Analysen, Konzepte und größere technische Vorbereitungen.
-
 ---
 
-## 23. Keine automatische Vermischung mit dem Baukasten
-
-Dieses Projekt darf nicht automatisch Funktionen aus dem Formular_Baukasten übernehmen.
-
-Der Baukasten bleibt Quelle für exportierte Formular-Webapps.
-
-Das Portal ist nur der zentrale Einstiegspunkt.
-
-Wenn später eine direkte Verbindung zwischen Baukasten und Portal gewünscht wird, muss sie separat entschieden und geplant werden.
-
-Mögliche spätere Verbindung:
-
-- Baukasten exportiert Formular direkt in portal-kompatible Struktur
-- Baukasten erzeugt zusätzlich Eintrag für `forms.json`
-- Portal kann neue Formularordner automatisch erkennen
-- Portal kann Formular-Metadaten aus exportiertem Formular lesen
-
-Diese Funktionen sind nicht automatisch Bestandteil der ersten Portalversion.
-
----
-
-## 24. Qualitätskriterien
+## 21. Qualitätskriterien
 
 Das Portal gilt als sauber umgesetzt, wenn:
 
@@ -569,190 +424,94 @@ Das Portal gilt als sauber umgesetzt, wenn:
 - einzelne Formular-Webapps eigenständig bleiben
 - Struktur verständlich und wartbar ist
 - neue Formulare einfach ergänzt werden können
-- das Baukasten-Repository nicht verändert wurde
 
 ---
 
-## 25. Sicherheits- und Datenschutzhinweise
+## 22. Sicherheits- und Datenschutzhinweise
 
-In der ersten statischen Version keine sensiblen Daten im Portal speichern.
+In der statischen Version keine sensiblen Kundendaten dauerhaft im Portal speichern.
 
 Nicht in `forms.json` speichern:
 
-- Passwörter
-- Zugangsdaten
+- Passwörter oder Zugangsdaten
 - Kundengeheimnisse
 - personenbezogene Daten, wenn nicht erforderlich
 - API-Schlüssel
 - interne vertrauliche Notizen
 
-Wenn später Benutzerrechte oder geschützte Formulare benötigt werden, reicht GitHub Pages allein möglicherweise nicht aus.
-
-Dann muss ein separates Berechtigungs- oder Hostingkonzept erstellt werden.
+Digitale Unterschriften müssen bei den integrierten Formular-Webapps unmittelbar nach erfolgreichem Export sicherheitsgelöscht werden.
 
 ---
 
-## 26. Grundsatzentscheidung
+## 23. Mobile-first & visuelle Ausrichtung
 
-Das Portal ist ein eigenständiges Projekt.
+### Visuelle Ausrichtung
 
-Es ist die Sammel- und Startoberfläche für fertige Formular-Webapps.
-
-Die Formular-Webapps bleiben eigenständige Anwendungen.
-
-Das Portal soll einfach, statisch, wartbar und GitHub-Pages-tauglich bleiben.
-
-Das Arbeitsrepository ist ausschließlich:
-
-```text
-RichardMogg/Formular_Portal
-```
-
-Das Baukasten-Repository ist ausschließlich Referenz.
-
-
----
-
-## Ergänzung: Mobile-first, Baukasten-Optik und Auftrag-PDF-Import
-
-### Baukasten als visuelle Referenz
-
-Das Repository `RichardMogg/Formular_Baukasten` bleibt ausschließlich Referenz.
-
-Zusätzlich zur Struktur- und Runtime-Referenz darf der Baukasten als visuelle Referenz für das Portal verwendet werden.
-
-Erlaubt ist die Orientierung an:
-
-- Farbwelt
+Das Portal nutzt ein modernes, aufgeräumtes Design mit:
+- Klarer Farbwelt (Blau-/Grau-Töne)
 - Karten- und Panel-Optik
-- Header-Anmutung
-- technischer Formular-Anmutung
-- abgerundeten Bedienelementen
-- mobilem Verhalten
-- klarer Trennung von HTML, CSS und JavaScript
-
-Nicht erlaubt:
-
-- Baukasten-Dateien ändern
-- Baukasten-CSS ungeprüft kopieren
-- Baukasten-JavaScript in das Portal übernehmen
-- Portal-Logik in den Baukasten einbauen
-- Baukasten-Repository für Portal-Änderungen verwenden
-
-Alle aktiven Änderungen erfolgen ausschließlich in `RichardMogg/Formular_Portal`.
+- Kompakten Badges für Kategorien und Status
+- Abgerundeten, leicht bedienbaren Oberflächen-Elementen
 
 ### Mobile-first Portal
 
-Das Portal wird primär für mobile Nutzung geplant.
-
-Mobile Bedienbarkeit ist keine spätere Optimierung, sondern eine zentrale Zielvorgabe.
+Das Portal wird primär für mobile Nutzung geplant. Mobile Bedienbarkeit ist eine zentrale Zielvorgabe.
 
 Regeln:
-
-- zuerst Smartphone und Tablet planen
-- große Touch-Ziele verwenden
+- Zuerst Smartphone und Tablet planen
+- Große Touch-Ziele verwenden
 - Suche und Filter mobil prominent platzieren
 - Formular-Kacheln mobil klar lesbar halten
 - Status, Version, Kategorie und Tags kompakt als Badges darstellen
-- keine Desktop-Zweispaltenstruktur als Grundvoraussetzung verwenden
-- Desktop darf zusätzlichen Platz nutzen, Mobile bleibt maßgeblich
 - PDF-Auftrag-Upload mobil bedienbar machen
-- erkannte Auftragsdaten mobil prüfbar und korrigierbar machen
+- Erkannte Auftragsdaten mobil prüfbar und korrigierbar machen
 
-### Auftrag-PDF-Import
+---
+
+## 24. Auftrag-PDF-Import & Adress-Splittung (Iststand)
 
 Der Auftrag-PDF-Import gehört zur Portal-Zielarchitektur.
 
-Grundablauf:
+### Grundablauf:
 
 PDF lokal im Browser laden
 → Text oder Daten extrahieren
-→ erkannte Auftragsdaten anzeigen
-→ Nutzer prüft oder korrigiert Daten
-→ temporären Auftragskontext erzeugen
-→ Formular optional mit Auftragskontext öffnen
+→ Erkannte Adressdaten mittels y-Koordinaten-Analyse zeilenweise trennen
+→ Adressblöcke in 12 strukturierte Einzelfelder parsen
+→ Erkannte Auftragsdaten zur Prüfung anzeigen
+→ Nutzer korrigiert ggf. Daten
+→ Temporären Auftragskontext im Speicher ablegen
+→ Formular mit diesem Auftragskontext zur Vorbefüllung öffnen
 
-In der ersten statischen Ausbaustufe gilt:
+### Regeln der ersten statischen Ausbaustufe:
 
 - Auftrag-PDFs nur lokal im Browser verarbeiten
-- keine serverseitige Verarbeitung ohne separate Entscheidung
-- keine Übertragung an externe Dienste ohne separate Entscheidung
-- keine dauerhafte Speicherung echter Auftragsdaten
-- keine Auftragsdaten in `forms.json`
-- keine Pflichtabhängigkeit der Formular-Webapps vom Portal
+- Keine serverseitige Verarbeitung oder Übertragung an Drittanbieter
+- Keine dauerhafte Speicherung echter Auftragsdaten auf einem Server
+- Keine Auftragsdaten in `forms.json`
+- Keine Pflichtabhängigkeit der Formular-Webapps vom Portal (das Formular muss auch ohne Vorbefüllung komplett funktionieren)
 
-Gescannte PDFs oder Bild-PDFs benötigen OCR.
+### Adress-Mapping-Felder (12 neue Einzelfelder):
 
-OCR ist nicht automatisch Bestandteil der ersten Umsetzung und erfordert eine separate technische Entscheidung.
+| Kategorie | Feldname | Beschreibung |
+| :--- | :--- | :--- |
+| **Auftraggeber** | `clientName` | Firmenname / Name |
+| | `clientStreet` | Straße und Hausnummer |
+| | `clientZip` | Postleitzahl |
+| | `clientCity` | Ort / Stadt |
+| **Kunde / Objekt** | `customerName` | Kunde / Baustellen-Name |
+| | `customerStreet` | Straße und Hausnummer |
+| | `customerZip` | Postleitzahl |
+| | `customerCity` | Ort / Stadt |
+| **Rechnungsempfänger** | `billingName` | Rechnungsempfänger Name |
+| | `billingStreet` | Straße und Hausnummer |
+| | `billingZip` | Postleitzahl |
+| | `billingCity` | Ort / Stadt |
 
-### Temporärer Auftragskontext
+---
 
-Das Portal darf aus einem Auftrag-PDF einen temporären Auftragskontext erzeugen.
+## 25. Formular-Sicherheitsfeatures (GDPR Compliance)
 
-Dieser Kontext darf für die aktuelle Nutzung vorbereitet werden, darf aber in der ersten statischen Ausbaustufe nicht dauerhaft im Portal gespeichert werden.
-
-Wenn `sessionStorage`, `localStorage`, IndexedDB oder ein anderer Browser-Speicher verwendet werden soll, muss vorher entschieden werden:
-
-- welche Daten gespeichert werden
-- wie lange sie gespeichert werden
-- wie der Nutzer sie löschen kann
-- ob die Speicherung für die erste Ausbaustufe zulässig ist
-
-`forms.json` darf nur Formular-Metadaten und Fähigkeiten enthalten, keine echten Auftragsinhalte.
-
-Zulässige Metadatenfelder für spätere Vorbefüllung:
-
-{
-  "acceptsOrderContext": false,
-  "prefillProfile": ""
-}
-
-### Optionale Vorbefüllung von Formularen
-
-Exportierte Formular-Webapps müssen eigenständig lauffähig bleiben.
-
-Eine Formular-Webapp darf später optional Portal-Kopfdaten übernehmen.
-
-Nicht zulässig:
-
-- Formular-Webapp startet nur noch über das Portal
-- Portal-Logik wird in einzelne exportierte Formulare eingebaut
-- Auftrag-PDF-Importlogik wird in einzelne exportierte Formulare eingebaut
-- bestehende Formularordner werden ohne ausdrücklichen Auftrag umgebaut
-
-Zulässig als spätere Architektur:
-
-Formular-Webapp läuft alleine.
-Portal verlinkt Formular-Webapp.
-Portal kann optional vorbereitete Kopfdaten bereitstellen.
-Formular-Webapp kann diese Kopfdaten optional übernehmen.
-
-Die Schnittstelle für Vorbefüllung sollte später sauber über den Baukasten beziehungsweise den Runtime-Export vorbereitet werden, nicht manuell pro Formularordner.
-
-### Zusätzliche Prüfpunkte vor Änderungen
-
-Zusätzlich zu den bestehenden Prüfpunkten prüfen:
-
-1. Bleibt die mobile Bedienung vorrangig berücksichtigt?
-2. Wird nur das Portal-Repository geändert?
-3. Bleibt der Baukasten unverändert?
-4. Wird Baukasten-Code nicht ungeprüft übernommen?
-5. Werden Auftragsdaten nicht dauerhaft gespeichert?
-6. Bleibt `forms.json` frei von echten Auftragsinhalten?
-7. Bleiben Formular-Webapps eigenständig lauffähig?
-8. Ist der Auftrag-PDF-Import vom Formular getrennt?
-9. Bleibt die Lösung statisch und GitHub-Pages-tauglich?
-10. Sind externe Bibliotheken bewusst gewählt und dokumentiert?
-
-### Zusätzliche Qualitätskriterien
-
-Das Portal erfüllt diese Ergänzung, wenn:
-
-- die mobile Ansicht zuerst sauber funktioniert
-- die Oberfläche optisch zum Baukasten passt, ohne Baukasten-Code ungeprüft zu kopieren
-- Auftrag-PDF-Import lokal im Browser geplant oder umgesetzt ist
-- erkannte Auftragsdaten vor Verwendung prüfbar sind
-- keine echten Auftragsdaten in `forms.json` landen
-- Formular-Webapps eigenständig bleiben
-- Vorbefüllung nur optional erfolgt
-- das Portal weiterhin statisch und GitHub-Pages-tauglich bleibt
+Jedes im Portal eingebettete Formular bietet zum Schutz der Privatsphäre:
+1. **Physischer Offline-Speicher (IndexedDB):** Zur sicheren Handhabung großer Bildmengen und Dateiuploads auf Mobilgeräten, ohne den Browser-RAM zu überlasten.
+2. **Automatischer Unterschriften-Wipe:** Sobald ein Export ausgelöst wird (ZIP-Export oder Einzelformat), werden sämtliche digitalen Unterschriften unwiederbringlich aus dem lokalen State, den Entwürfen und dem LocalStorage entfernt, sobald der Exportvorgang abgeschlossen ist und der Benutzer die restlichen Formulardaten behält.
