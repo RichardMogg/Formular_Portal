@@ -4,14 +4,33 @@
  */
 
 const TIME_TAG_SELECTOR = '#timeTable input.time-tag';
+const TIME_TABLE_SELECTOR = '#timeTable';
 
 function initTimeDatePickers() {
   convertExistingTimeTagInputs();
+  widenWorkTimeColumn();
   observeTimeRows();
 }
 
 function convertExistingTimeTagInputs() {
   document.querySelectorAll(TIME_TAG_SELECTOR).forEach(convertTimeTagInput);
+}
+
+function widenWorkTimeColumn() {
+  const table = document.querySelector(TIME_TABLE_SELECTOR);
+  if (!table) return;
+
+  const nameHeader = table.querySelector('thead th:nth-child(2)');
+  const workTimeHeader = table.querySelector('thead th:nth-child(3)');
+
+  // Arbeitszeit-Spalte 10 % relativ breiter: 20 % -> 22 %.
+  // Ausgleich über Name/Tätigkeit: 25 % -> 23 %, damit die Tabelle bei 100 % bleibt.
+  if (nameHeader) nameHeader.style.width = '23%';
+  if (workTimeHeader) workTimeHeader.style.width = '22%';
+
+  table.querySelectorAll('tbody td:nth-child(3)').forEach((cell) => {
+    cell.style.width = '22%';
+  });
 }
 
 function observeTimeRows() {
@@ -20,6 +39,7 @@ function observeTimeRows() {
 
   const observer = new MutationObserver(() => {
     convertExistingTimeTagInputs();
+    widenWorkTimeColumn();
   });
 
   observer.observe(tbody, { childList: true, subtree: true });
