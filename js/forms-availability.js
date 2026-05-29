@@ -113,7 +113,7 @@ async function isFormAvailable(form) {
 [
 
   {
-    "url": "forms/GBT Störungsbericht/index.html",
+    "url": "forms/GBT_Störungsbericht/index.html",
     "id": "GBT Störungsbericht",
     "title": "GBT Störungsbericht",
     "category": "Berichte",
