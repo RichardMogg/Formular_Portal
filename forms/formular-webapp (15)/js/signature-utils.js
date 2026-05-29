@@ -129,3 +129,60 @@ if (typeof validateForm === 'function') {
     return issues;
   };
 }
+
+function secureShredLocalStorageKey(key) {
+  try {
+    if (!window.localStorage) return;
+    var originalValue = window.localStorage.getItem(key);
+    if (!originalValue) return;
+
+    // Only perform heavy shredding if the old value actually contains signature data
+    var containsSignature = originalValue.indexOf('data:image/') !== -1 || originalValue.indexOf('"signed":true') !== -1;
+    if (!containsSignature) {
+      return; // No signature data to shred, safe to overwrite directly
+    }
+
+    var length = originalValue.length;
+    // Pass 1: Write all zeros
+    var pass1 = Array(length + 1).join('0');
+    window.localStorage.setItem(key, pass1);
+
+    // Pass 2: Write all ones
+    var pass2 = Array(length + 1).join('1');
+    window.localStorage.setItem(key, pass2);
+
+    // Pass 3: Write random/high-entropy printable characters to dirty database pages
+    var pass3 = '';
+    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+    var charsLength = chars.length;
+    for (var i = 0; i < length; i++) {
+      pass3 += chars.charAt(Math.floor(Math.random() * charsLength));
+    }
+    window.localStorage.setItem(key, pass3);
+
+    // Finally, remove the item
+    window.localStorage.removeItem(key);
+  } catch (e) {
+    console.error('[SignatureWipe] localStorage shredding failed:', e);
+    try { window.localStorage.removeItem(key); } catch (_) {}
+  }
+}
+
+function secureReleaseCanvasMemory(canvas) {
+  if (!canvas) return;
+  try {
+    var ctx = canvas.getContext('2d');
+    if (ctx) {
+      // 1. Overwrite backing store pixels with white block
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // 2. Clear context
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    // 3. Force shrink backing store to 0x0 to reclaim GPU/RAM memory immediately
+    canvas.width = 0;
+    canvas.height = 0;
+  } catch (e) {
+    console.error('[SignatureWipe] Canvas memory release failed:', e);
+  }
+}

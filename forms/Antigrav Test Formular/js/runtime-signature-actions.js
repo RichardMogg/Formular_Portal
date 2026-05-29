@@ -33,7 +33,11 @@
 
     try {
       if (window.localStorage) {
-        window.localStorage.setItem(storageKey(schema), JSON.stringify(state));
+        var key = storageKey(schema);
+        if (typeof secureShredLocalStorageKey === 'function') {
+          secureShredLocalStorageKey(key);
+        }
+        window.localStorage.setItem(key, JSON.stringify(state));
       }
     } catch (error) {
       // Der Runtime-Core zeigt Speicherfehler selbst an. Dieses Modul bleibt still.

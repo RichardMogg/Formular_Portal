@@ -617,6 +617,13 @@
         }
       });
     }
+
+    // 4. Securely release graphics memory for any active canvas DOM elements
+    if (typeof secureReleaseCanvasMemory === 'function') {
+      document.querySelectorAll('canvas.signature-canvas').forEach(function (canvas) {
+        secureReleaseCanvasMemory(canvas);
+      });
+    }
   }
 
   function persistRuntimeState(schema, state) {
@@ -624,6 +631,9 @@
     state.savedAt = new Date().toISOString();
     try {
       if (window.localStorage) {
+        if (typeof secureShredLocalStorageKey === 'function') {
+          secureShredLocalStorageKey(key);
+        }
         window.localStorage.setItem(key, JSON.stringify(state));
       }
     } catch (e) {
