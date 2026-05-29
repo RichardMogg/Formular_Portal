@@ -1,5 +1,5 @@
-import { state, matchesFilters, saveLieferscheinDraft, loadLieferscheinDraft } from './state.js?v=1.0.9';
-import { SignaturePad } from './signature-pad.js?v=1.0.9';
+import { state, matchesFilters, saveLieferscheinDraft, loadLieferscheinDraft } from './state.js?v=1.1.0';
+import { SignaturePad } from './signature-pad.js?v=1.1.0';
 
 export const elements = {
   grid: document.querySelector('[data-form-grid]'),
@@ -168,6 +168,10 @@ export function openLieferscheinModal() {
   
   // Resize auslösen, damit Canvas-Pads sich richtig an die Breite anpassen!
   setTimeout(() => {
+    if (elements.modalLeistungsbericht) {
+      elements.modalLeistungsbericht.style.height = 'auto';
+      elements.modalLeistungsbericht.style.height = (elements.modalLeistungsbericht.scrollHeight) + 'px';
+    }
     if (techSigPad) techSigPad.resizeCanvas();
     if (custSigPad) custSigPad.resizeCanvas();
   }, 150);

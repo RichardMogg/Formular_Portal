@@ -1,4 +1,4 @@
-import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.9';
+import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.1.0';
 import { 
   elements, 
   renderCategoryFilter, 
@@ -13,8 +13,8 @@ import {
   clearAllModalFormFields,
   techSigPad,
   custSigPad
-} from './ui.js?v=1.0.9';
-import { parsePdfOrder } from './pdf-handler.js?v=1.0.9';
+} from './ui.js?v=1.1.0';
+import { parsePdfOrder } from './pdf-handler.js?v=1.1.0';
 
 // Mail-Konfigurations-Cache
 let cachedMailAddress = 'adl@gebatech.at'; // Standard Fallback
@@ -172,6 +172,12 @@ function bindEvents() {
     field.addEventListener('input', triggerDraftAutoSave);
     field.addEventListener('change', triggerDraftAutoSave);
   });
+  
+  // Dynamische Feldgröße für den Leistungsbericht (Auto-Resize beim Tippen)
+  elements.modalLeistungsbericht.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+  });
 }
 
 async function handlePdfUpload(file) {
@@ -321,7 +327,7 @@ function createOffscreenPdfClone(element) {
       const printDiv = clone.querySelector('#modalLeistungsberichtPrint');
       if (printDiv) {
         printDiv.innerHTML = escapeHtml(val).split('\n')
-          .map(line => `<div class="pdf-report-line" style="min-height: 1.2em; word-break: break-word;">${line.trim() ? line : ' '}</div>`)
+          .map(line => `<div class="pdf-report-line" style="min-height: 24px; line-height: 24px; word-break: break-word; box-sizing: border-box; padding: 0 4px;">${line.trim() ? line : ' '}</div>`)
           .join('');
         printDiv.style.display = 'block';
         printDiv.classList.add('print-show-force');
@@ -383,7 +389,12 @@ function createOffscreenPdfClone(element) {
     ctx.drawImage(elements.customerSigCanvas, 0, 0);
   }
   
-  // 5. DOM normalisieren gegen html2canvas Range-Bugs
+  // 5. Label-for-Attribute im Klon entfernen, um Messungskonflikte mit ausgeblendeten Inputs zu verhindern
+  clone.querySelectorAll('label').forEach(label => {
+    label.removeAttribute('for');
+  });
+  
+  // 6. DOM normalisieren gegen html2canvas Range-Bugs
   clone.normalize();
   
   return clone;
