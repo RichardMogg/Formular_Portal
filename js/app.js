@@ -1,4 +1,4 @@
-import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.8';
+import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.9';
 import { 
   elements, 
   renderCategoryFilter, 
@@ -13,8 +13,8 @@ import {
   clearAllModalFormFields,
   techSigPad,
   custSigPad
-} from './ui.js?v=1.0.8';
-import { parsePdfOrder } from './pdf-handler.js?v=1.0.8';
+} from './ui.js?v=1.0.9';
+import { parsePdfOrder } from './pdf-handler.js?v=1.0.9';
 
 // Mail-Konfigurations-Cache
 let cachedMailAddress = 'adl@gebatech.at'; // Standard Fallback
@@ -453,8 +453,8 @@ async function handleOrderCompletion() {
 
   let holder = null;
   try {
-    // 1. html2pdf.js dynamisch nachladen (um Ladezeiten beim App-Start zu minimieren)
-    await loadHtml2PdfLibrary();
+    // 1. Stabile PDF-Bibliotheken (html2canvas 1.4.1 & jsPDF 2.5.1) dynamisch nachladen
+    await loadPdfLibraries();
     
     // 2. Element für PDF-Export vorbereiten
     const element = document.getElementById('lieferscheinSheet');
@@ -477,22 +477,33 @@ async function handleOrderCompletion() {
     // Kurzen asynchronen Delay einbauen, damit der Browser den Klon-Baum absolut stabilisiert
     await new Promise(resolve => setTimeout(resolve, 150));
     
-    const opt = {
-      margin: [10, 10, 10, 10],
-      filename: filename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
-        scale: 2, 
-        useCORS: true,
-        logging: false
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    
-    // Erzeuge das PDF-Dokument als Binär-Blob direkt aus dem isolierten Klon!
+    // Erzeuge das PDF-Dokument als Binär-Blob direkt aus dem isolierten Klon unter Verwendung der stabilen Bibliotheken!
     let pdfBlob = null;
     try {
-      pdfBlob = await window.html2pdf().set(opt).from(clone).output('blob');
+      // html2canvas v1.4.1 für absolut fehlerfreies Zeichnen ausführen
+      const canvas = await window.html2canvas(clone, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        logging: false
+      });
+      
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      
+      // jsPDF v2.5.1 initialisieren
+      const jsPDF = window.jspdf.jsPDF;
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Das gerenderte Briefblatt passgenau auf das A4-Blatt (210mm x 297mm) zeichnen
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+      
+      const arrayBuffer = pdf.output('arraybuffer');
+      pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
+      
     } finally {
       // In jedem Fall den temporären Holder rückstandslos bereinigen!
       if (holder && holder.parentNode) {
@@ -562,24 +573,26 @@ async function handleOrderCompletion() {
   }
 }
 
-// Lädt html2pdf.js aus dem CDN
-function loadHtml2PdfLibrary() {
-  return new Promise((resolve, reject) => {
-    if (window.html2pdf) {
-      resolve();
-      return;
-    }
-    
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-    script.onload = () => {
-      resolve();
-    };
-    script.onerror = () => {
-      reject(new Error('PDF-Bibliothek (html2pdf.js) konnte nicht vom CDN geladen werden. Bitte Internetverbindung prüfen.'));
-    };
-    document.head.appendChild(script);
-  });
+// Lädt html2canvas (v1.4.1) und jsPDF (v2.5.1) aus dem CDN
+function loadPdfLibraries() {
+  return Promise.all([
+    new Promise((resolve, reject) => {
+      if (window.html2canvas) return resolve();
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('html2canvas konnte nicht geladen werden.'));
+      document.head.appendChild(script);
+    }),
+    new Promise((resolve, reject) => {
+      if (window.jspdf && window.jspdf.jsPDF) return resolve();
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('jsPDF konnte nicht geladen werden.'));
+      document.head.appendChild(script);
+    })
+  ]);
 }
 
 function escapeHtml(value) {
