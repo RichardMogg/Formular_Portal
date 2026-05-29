@@ -1,5 +1,5 @@
-import { state, matchesFilters, saveLieferscheinDraft, loadLieferscheinDraft } from './state.js?v=1.0.3';
-import { SignaturePad } from './signature-pad.js?v=1.0.3';
+import { state, matchesFilters, saveLieferscheinDraft, loadLieferscheinDraft } from './state.js?v=1.0.4';
+import { SignaturePad } from './signature-pad.js?v=1.0.4';
 
 export const elements = {
   grid: document.querySelector('[data-form-grid]'),

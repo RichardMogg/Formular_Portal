@@ -1,4 +1,4 @@
-import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.3';
+import { state, loadOrderContext, saveOrderContext, clearOrderContext, clearLieferscheinDraft, shredCompleteActiveOrder } from './state.js?v=1.0.4';
 import { 
   elements, 
   renderCategoryFilter, 
@@ -13,8 +13,8 @@ import {
   clearAllModalFormFields,
   techSigPad,
   custSigPad
-} from './ui.js?v=1.0.3';
-import { parsePdfOrder } from './pdf-handler.js?v=1.0.3';
+} from './ui.js?v=1.0.4';
+import { parsePdfOrder } from './pdf-handler.js?v=1.0.4';
 
 // Mail-Konfigurations-Cache
 let cachedMailAddress = 'adl@gebatech.at'; // Standard Fallback
@@ -313,8 +313,10 @@ function prepareDomForPdf(container) {
       // Nutzen Sie das bereits im HTML deklarierte und gestylte modalLeistungsberichtPrint div!
       const printDiv = document.getElementById('modalLeistungsberichtPrint');
       if (printDiv) {
-        // HTML-maskieren und Zeilenumbrüche in <br> umwandeln gegen html2canvas IndexSizeErrors
-        printDiv.innerHTML = escapeHtml(val).split('\n').map(line => line.trim() ? line : '\u00A0').join('<br>');
+        // Zeilen in separate Divs aufteilen statt <br>, um html2canvas Range/setEnd-Berechnungsfehler zu vermeiden!
+        printDiv.innerHTML = escapeHtml(val).split('\n')
+          .map(line => `<div class="pdf-report-line" style="min-height: 1.2em; word-break: break-word;">${line.trim() ? line : '\u00A0'}</div>`)
+          .join('');
         
         // Verstecke die Original-Textarea und zeige das Print-Div an
         const originalDisplay = input.style.display;
@@ -450,6 +452,9 @@ async function handleOrderCompletion() {
     
     // Normalisiere den DOM-Tree, um adjacent text nodes zu bereinigen und IndexSizeErrors/setEnd Errors in html2canvas zu verhindern!
     element.normalize();
+    
+    // Kurzen asynchronen Delay einbauen, damit der Browser den DOM/Layout-Tree nach der Ersetzung absolut stabilisiert
+    await new Promise(resolve => setTimeout(resolve, 150));
     
     // Synchronen Reflow (Layout-Berechnung) erzwingen, damit die Textknoten-Indizes im Layout-Tree 100% aktuell sind!
     const forceReflow = element.offsetHeight;
