@@ -46,7 +46,7 @@ main {
 
 .app-header {
   background: #ffffff;
-  border-bottom: 4px solid #991b1e;
+  border-bottom: 4px solid var(--accent);
   padding: 18px 14px 14px;
   text-align: center;
   box-shadow: 0 1px 18px rgba(15, 23, 42, 0.08);
